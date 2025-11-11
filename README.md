@@ -1,5 +1,3 @@
-Perfecto 👌 Aquí tienes **todo el contenido en formato Markdown profesional**, listo para pegar directamente en tu `README.md` del backend de **HADES_COMUNICATION_SECURITY_BACKEND**:
-
 
 # HADES_COMUNICATION_SECURITY_BACKEND
 
@@ -25,6 +23,8 @@ Perfecto 👌 Aquí tienes **todo el contenido en formato Markdown profesional**
   * [ Estructura de Capas](#️-estructura-de-capas)
 * [ Tecnologías Utilizadas](#️-tecnologías-utilizadas)
 * [ Arquitectura Limpia - Organización de Capas](#️-arquitectura-limpia---organización-de-capas)
+* [Diagramas del Módulo](#diagramas-del-módulo)
+
 
 ---
 
@@ -212,6 +212,32 @@ Orquesta la lógica del negocio a través de **casos de uso**, **DTOs**, **mappe
 ### INFRASTRUCTURE (Infraestructura)
 
 Implementa los **detalles técnicos**: controladores REST, persistencia, configuración, seguridad y conexión con servicios externos.
+
+---
+
+## Diagramas del Módulo
+
+### Diagrama de Componentes Específico
+
+
+
+---
+
+### Diagrama de Clases
+
+
+
+---
+
+### Diagrama de Bases de Datos
+
+
+
+---
+
+### Diagrama de Despliegue Específico del Módulo
+
+
 
 ---
 
