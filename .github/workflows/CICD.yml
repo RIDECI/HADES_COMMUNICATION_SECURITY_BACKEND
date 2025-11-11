@@ -9,8 +9,7 @@ on:
 
   pull_request:
     branches:
-      - develop
-
+      - developW
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -35,7 +34,7 @@ jobs:
           server_port: 587
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "Compilación exitosa - Backend RidECI"
+          subject: "Compilación exitosa - Backend RIDECI"
           body: "La etapa de compilación finalizó correctamente 😁"
           to: "juanpablocaballero564@gmail.com"
           from: ${{ secrets.EMAIL_USER }}
@@ -48,7 +47,7 @@ jobs:
           server_port: 587
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "Error en compilación - Backend RidECI ❌"
+          subject: "Error en compilación - Backend RIDECI ❌"
           body: "Hubo un error en la etapa de compilación. 🤮"
           to: "juanpablocaballero564@gmail.com"
           from: ${{ secrets.EMAIL_USER }}
@@ -77,7 +76,7 @@ jobs:
           server_port: 587
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "Pruebas exitosas - Backend RidECI ✅ "
+          subject: "Pruebas exitosas - Backend RIDECI ✅ "
           body: "Las pruebas se ejecutaron correctamente 😁"
           to: "juanpablocaballero564@gmail.com"
           from: ${{ secrets.EMAIL_USER }}
@@ -90,7 +89,7 @@ jobs:
           server_port: 587
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "Error en pruebas - Backend RidECI ❌"
+          subject: "Error en pruebas - Backend RIDECI ❌"
           body: "Hubo un error en la etapa de pruebas. 🤮"
           to: "juanpablocaballero564@gmail.com"
           from: ${{ secrets.EMAIL_USER }}
@@ -111,7 +110,7 @@ jobs:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
           echo "🎆 Desplegando en Railway..."
-          railway up --service=backend-rideci --environment=${GITHUB_REF##*/}
+          railway up --service=backend-RIDECI --environment=${GITHUB_REF##*/}
 
       - name: Notificar éxito del despliegue
         if: success()
@@ -121,7 +120,7 @@ jobs:
           server_port: 587
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "Despliegue exitoso - Backend RidECI ✨"
+          subject: "Despliegue exitoso - Backend RIDECI ✨"
           body: "El despliegue se completó correctamente en Railway para la rama ${{ github.ref_name }}. 😁"
           to: "juanpablocaballero564@gmail.com"
           from: ${{ secrets.EMAIL_USER }}
@@ -134,7 +133,7 @@ jobs:
           server_port: 587
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: "Error en despliegue - Backend RidECI ❌ "
+          subject: "Error en despliegue - Backend RIDECI ❌ "
           body: "El despliegue falló en Railway para la rama ${{ github.ref_name }}. 🤮"
           to: "juanpablocaballero564@gmail.com"
           from: ${{ secrets.EMAIL_USER }}
