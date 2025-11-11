@@ -1,108 +1,217 @@
+Perfecto 👌 Aquí tienes **todo el contenido en formato Markdown profesional**, listo para pegar directamente en tu `README.md` del backend de **HADES_COMUNICATION_SECURITY_BACKEND**:
+
+
 # HADES_COMUNICATION_SECURITY_BACKEND
 
-**Integrantes:**
+## Desarrolladores
 
-- Karol Estafany Estupiñan Viancha.
-
-- Juan Andres Suarez Fonseca.
-
-- Juan Pablo Caballero Castellanos.
-
-- Julian Santiago Ramirez Urueña.
+* Karol Estefany Estupiñan Viancha
+* Juan Andrés Suárez Fonseca
+* Juan Pablo Caballero Castellanos
+* Julián Santiago Ramírez Urueña
+* Nicolás Andrés Duarte Rodríguez
 
 ---
 
-## Estrategia de Versionamiento y ramas.
+## Tabla de Contenidos
 
-**Template ramas**
+* [ Estrategia de Versionamiento y Branching](#-estrategia-de-versionamiento-y-branching)
 
-- main: Versión estable para PREPROD
-- develop: Rama principal de desarrollo
-- bugix/*: Manejo de errores
-- release/*: Manejo de versiones.
+  * [ Estrategia de Ramas (Git Flow)](#-estrategia-de-ramas-git-flow)
+  * [ Convenciones de Nomenclatura](#-convenciones-de-nomenclatura)
+  * [ Convenciones de Commits](#-convenciones-de-commits)
+* [ Arquitectura del Proyecto](#-arquitectura-del-proyecto)
 
----
-
-**Template Commits**
-`feature: Tarea - Acción Realizada`
-
----
-
-## Tecnologías utilizadas
-
-- MongoBD
-- Railway
-- Vercel
-- Java 17
-- TypeScript
-- Jacoco
-- SonarQube
-- Swagger UI
-- Docker
-- Sprint Boot
-- Maven
-- Kubernetes k8
-- GitHub Actions
-- Postman
-- Figma
-- Slack
-- Jira
-- JWT
-- Postgresql
-
---- 
-
-## Arquitectura Limpia
-
-DOMAIN (Dominio)
-
-Representa el núcleo del negocio y contiene los conceptos más importantes de la aplicación.
-En esta capa se define qué hace el sistema, no cómo lo hace.
-
-Contiene:
-
-- Entities: Clases que representan los objetos principales del negocio y sus invariantes.
-
-- Value Objects: Objetos de valor que encapsulan reglas específicas (como Email).
-
-- Enums: Enumeraciones propias del dominio (por ejemplo: tipo usuario, tipo de  pago).
-
-- Repositories (interfaces): Contratos abstractos que definen cómo se accederá a los datos sin depender de una base concreta.
-
-- Services: Reglas de negocio que involucran múltiples entidades o procesos complejos.
-
-- Events: Eventos que representan sucesos importantes dentro del dominio (por ejemplo: enviar alerta).
+  * [ Estructura de Capas](#️-estructura-de-capas)
+* [ Tecnologías Utilizadas](#️-tecnologías-utilizadas)
+* [ Arquitectura Limpia - Organización de Capas](#️-arquitectura-limpia---organización-de-capas)
 
 ---
 
-APPLICATION (Aplicación)
+##  Estrategia de Versionamiento y Branching
 
-Encapsula la lógica de aplicación y los casos de uso.
-Define cómo se usa el dominio para resolver un problema o ejecutar una acción.
+Se implementa una estrategia de versionamiento basada en **GitFlow**, garantizando un flujo de desarrollo **colaborativo, trazable y controlado**.
 
-Contiene:
+###  Beneficios:
 
-Use Cases: Casos de uso que orquestan el flujo de la aplicación.
-
-DTOs (Data Transfer Objects): Objetos de transferencia de datos usados entre las capas.
-
-Mappers: Convertidores entre entidades y DTOs.
-
-Exceptions: Excepciones personalizadas que representan errores del negocio o de la aplicación.
+- Permite trabajo paralelo sin conflictos
+- Mantiene versiones estables y controladas
+- Facilita correcciones urgentes (*hotfixes*)
+- Proporciona un historial limpio y entendible
 
 ---
 
-INFRASTRUCTURE (Infraestructura)
+##  Estrategia de Ramas (Git Flow)
 
-Implementa los detalles técnicos que permiten que el sistema funcione.
-Aquí se manejan aspectos de persistencia, comunicación externa, seguridad y configuración.
+| **Rama**                | **Propósito**                            | **Recibe de**           | **Envía a**        | **Notas**                      |
+| ----------------------- | ---------------------------------------- | ----------------------- | ------------------ | ------------------------------ |
+| `main`                  | Código estable para PREPROD o Producción | `release/*`, `hotfix/*` | Despliegue         | Protegida con PR y CI exitoso  |
+| `develop`               | Rama principal de desarrollo             | `feature/*`             | `release/*`        | Base para integración continua |
+| `feature/*`             | Nuevas funcionalidades o refactors       | `develop`               | `develop`          | Se eliminan tras el merge      |
+| `release/*`             | Preparación de versiones estables        | `develop`               | `main` y `develop` | Incluye pruebas finales        |
+| `bugfix/*` o `hotfix/*` | Corrección de errores críticos           | `main`                  | `main` y `develop` | Parches urgentes               |
 
-Contiene:
+---
 
-API / Controllers: Endpoints REST que reciben las solicitudes del usuario, llaman los casos de uso y devuelven las respuestas.
+##  Convenciones de Nomenclatura
 
-Database: Configuración de la base de datos y sus modelos concretos (por ejemplo, anotaciones de JPA o documentos de MongoDB).
+### Feature Branches
 
-Repositories: Implementaciones concretas de las interfaces del dominio.
+```
+feature/[nombre-funcionalidad]-hades_[codigo-jira]
+```
 
-Config: Clases de configuración general del sistema (CORS, beans, seguridad, etc.).
+**Ejemplos:**
+
+```
+- feature/authentication-module-hades_23
+- feature/security-service-hades_41
+```
+
+**Reglas:**
+
+*  Formato: *kebab-case*
+*  Incluir código Jira
+*  Descripción breve y clara
+*  Longitud máxima: 50 caracteres
+
+---
+
+### Release Branches
+
+```
+release/[version]
+```
+
+**Ejemplos:**
+
+```
+- release/1.0.0
+- release/1.1.0-beta
+```
+
+---
+
+### Hotfix Branches
+
+```
+hotfix/[descripcion-breve-del-fix]
+```
+
+**Ejemplos:**
+
+```
+- hotfix/fix-token-expiration
+- hotfix/security-patch
+```
+
+---
+
+## Convenciones de Commits
+
+### Formato Estándar
+
+```
+[codigo-jira] [tipo]: [descripción breve de la acción]
+```
+
+**Ejemplos:**
+
+```
+45-feat: agregar validación de token JWT
+46-fix: corregir error en autenticación por roles
+```
+
+---
+
+### Tipos de Commit
+
+| **Tipo**   | **Descripción**                      | **Ejemplo**                                     |
+| ----------- | ------------------------------------ | ----------------------------------------------- |
+| `feat`      | Nueva funcionalidad                  | `22-feat: implementar autenticación con JWT`    |
+| `fix`       | Corrección de errores                | `24-fix: solucionar error en endpoint de login` |
+| `docs`      | Cambios en documentación             | `25-docs: actualizar README con nuevas rutas`   |
+| `refactor`  | Refactorización sin cambio funcional | `27-refactor: optimizar servicio de seguridad`  |
+| `test`      | Pruebas unitarias o de integración   | `29-test: agregar tests para AuthService`       |
+| `chore`     | Mantenimiento o configuración        | `30-chore: actualizar dependencias de Maven`    |
+
+
+**Reglas:**
+
+* Un commit = una acción completa
+* Máximo **72 caracteres** por línea
+* Usar modo imperativo (“agregar”, “corregir”, etc.)
+* Descripción clara de qué y dónde
+* Commits pequeños y frecuentes
+
+---
+
+## Arquitectura del Proyecto
+
+El backend de **HADES_COMUNICATION_SECURITY** sigue una **arquitectura limpia y desacoplada**, priorizando:
+
+* Separación de responsabilidades
+* Mantenibilidad
+* Escalabilidad
+* Facilidad de pruebas
+
+---
+
+## Estructura de Capas
+
+```
+📂 hades_backend
+ ┣ 📂 domain/
+ ┃ ┣ 📄 Entities/
+ ┃ ┣ 📄 ValueObjects/
+ ┃ ┣ 📄 Enums/
+ ┃ ┣ 📄 Services/
+ ┃ ┗ 📄 Events/
+ ┣ 📂 application/
+ ┃ ┣ 📄 UseCases/
+ ┃ ┣ 📄 DTOs/
+ ┃ ┣ 📄 Mappers/
+ ┃ ┗ 📄 Exceptions/
+ ┣ 📂 infrastructure/
+ ┃ ┣ 📄 Controllers/
+ ┃ ┣ 📄 Database/
+ ┃ ┣ 📄 Repositories/
+ ┃ ┣ 📄 Config/
+ ┃ ┗ 📄 Security/
+ ┗ 📄 pom.xml
+```
+
+---
+
+## Tecnologías Utilizadas
+
+| **Categoría**              | **Tecnologías**                           |
+| -------------------------- | ----------------------------------------- |
+| **Backend**                | Java 17, Spring Boot, Maven               |
+| **Base de Datos**          | MongoDB, PostgreSQL                       |
+| **Infraestructura**        | Docker, Kubernetes (K8s), Railway, Vercel |
+| **Seguridad**              | JWT, Spring Security                      |
+| **Integración Continua**   | GitHub Actions, Jacoco, SonarQube         |
+| **Documentación y Diseño** | Swagger UI, Figma                         |
+| **Comunicación y Gestión** | Slack, Jira                               |
+| **Testing**                | Postman                                   |
+
+---
+
+## Arquitectura Limpia - Organización de Capas
+
+### DOMAIN (Dominio)
+
+Representa el **núcleo del negocio**, define **qué hace el sistema, no cómo lo hace**.
+Incluye entidades, objetos de valor, enumeraciones, interfaces de repositorio y servicios de negocio.
+
+### APPLICATION (Aplicación)
+
+Orquesta la lógica del negocio a través de **casos de uso**, **DTOs**, **mappers** y **excepciones personalizadas**.
+
+### INFRASTRUCTURE (Infraestructura)
+
+Implementa los **detalles técnicos**: controladores REST, persistencia, configuración, seguridad y conexión con servicios externos.
+
+---
+
