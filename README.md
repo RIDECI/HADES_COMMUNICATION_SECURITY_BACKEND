@@ -489,6 +489,20 @@ Evaluaciones al finalizar un viaje.
 
 ### Diagrama de Bases de Datos
 
+<img width="387" height="463" alt="image" src="https://github.com/user-attachments/assets/3b9f2931-6040-44fb-9a0b-07ae3a847d56" />
+
+
+
+
+<img width="382" height="395" alt="image" src="https://github.com/user-attachments/assets/650cda9f-5376-4640-860c-b589470b7a17" />
+
+
+
+
+El diagrama de base de datos NoSQL para el módulo de Comunicación y Seguridad de RidECI representa la estructura principal de las colecciones que gestionan la interacción y protección de los usuarios durante los viajes. Se basa en dos colecciones externas (trips y users) que sirven como referencia para las funcionalidades del módulo. Las colecciones internas incluyen chats para la mensajería entre participantes, route_monitoring para el seguimiento geoespacial del trayecto, emergency_alerts para el manejo de situaciones críticas, ratings_and_reports para la evaluación de comportamiento, y user_reputatiopn para consolidar la reputación de cada usuario. El modelo utiliza documentos embebidos para almacenar mensajes y participantes dentro de los chats, así como detalles de reportes dentro de las calificaciones. También incorpora índices TTL para eliminar datos temporales y geoespaciales para el monitoreo en tiempo real. Las relaciones están claramente definidas mediante referencias y composición, lo que permite una implementación coherente, funcional y alineada con los requerimientos del sistema.
+
+
+
 
 
 ---
