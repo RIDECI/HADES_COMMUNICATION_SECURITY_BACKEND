@@ -32,8 +32,9 @@
             **/domain/entities/**,
             **/domain/enums/**,
             **/domain/events/**,
+            **/domain/models/**,
             **/infrastructure/config/**,
-            **/infrastructure/database/models/**,
+            **/infrastructure/database/**,
             **/infrastructure/api/controllers/**,
             **/HadesCommunicationSecurityBackendApplication.class
         </sonar.coverage.exclusions>

@@ -215,7 +215,112 @@ Implementa los **detalles técnicos**: controladores REST, persistencia, configu
 
 ---
 
-## Diagramas del Módulo
+### Diagramas del Módulo
+
+### Diagrama de Despliegue
+
+![alt text](docs/images/DiagramaDespliegue.png)
+
+El diagrama representa la arquitectura de despliegue del Módulo de Comunicación y Seguridad del sistema RIDECI, mostrando cómo interactúan los componentes de software, las herramientas CI/CD, la base de datos, las APIs externas y el cliente final.
+
+CLIENTE: 
+
+una aplicación web desarrollada en React + TypeScript, utilizada por conductores, pasajeros y administradores.
+
+Se despliega como un artefacto web estático.
+
+Se comunica con el backend mediante HTTPS y WebSockets (para chat en tiempo real y alertas).
+
+MÓDULO COMUNICACIÓN Y SEGURIDAD
+
+Este es el microservicio principal del módulo y gestiona:
+
+- Chat en tiempo real
+
+- Alertas de emergencia
+
+- Alertas por desviación de ruta
+
+- Historial de incidentes
+
+- Reportes y calificaciones
+
+El módulo se despliega en Railway y contiene los artefactos del backend del proyecto. Funcionalidades claves:
+
+- Enviar y recibir mensajes mediante WebSocket.
+
+- Activar alertas y enviar notificaciones.
+
+- Integrarse con la API de geolocalización.
+
+- Consultar incidentes y calificaciones desde la base de datos.
+
+Conexiones:
+
+- Se conecta con MongoDB mediante un driver de base de datos.
+
+- Envía notificaciones a un servicio externo.
+
+- Publica métricas y resultados de análisis a herramientas CI/CD.
+
+NOTIFICATIONS (Servicio externo)
+
+Este nodo representa el sistema externo encargado de:
+
+- Enviar correos.
+
+- Notificar a contactos de emergencia
+
+- Avisar a seguridad institucional.
+
+El backend envía hacia este sistema las alertas cuando ocurre un evento crítico.
+
+CI/CD TOOLS
+
+🔧 JACOCO
+
+- Genera reportes de cobertura del código Java.
+
+- Se ejecuta durante el pipeline.
+
+🔧 SONARQUBE
+
+Realiza análisis estático de calidad y seguridad del código.
+
+- Detecta code smells, bugs y vulnerabilidades.
+
+🔧 GITHUB ACTIONS
+
+- Orquesta el pipeline de CI/CD.
+
+MONGO DB
+
+La base de datos del módulo está desplegada en un contenedor Docker con MongoDB, y almacena:
+
+- Usuarios
+
+- Historial del chat
+
+- Reportes e incidentes
+
+- Calificaciones
+
+- Alertas
+
+El backend se comunica con este contenedor mediante el driver de MongoDB.
+
+GEOLOCALIZACIÓN (Maps API)
+
+Este servicio externo provee a nuestro módulo:
+
+- Coordenadas de ubicación en tiempo real
+
+- Ruta planificada vs. ruta actual
+
+- Detección de desviaciones
+
+El backend consume esta API para activar alertas automáticas de desviación.
+---
 
 ### Diagrama de Componentes Específico
 
