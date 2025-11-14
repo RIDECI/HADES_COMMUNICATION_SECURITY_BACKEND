@@ -321,10 +321,10 @@ Este servicio externo provee a nuestro módulo:
 
 El backend consume esta API para activar alertas automáticas de desviación.
 ---
-
+### Diagrama de Componentes Específico
+---
 ### Diagrama de casos de uso
 
-### Diagrama de Componentes Específico
 <img width="776" height="1551" alt="Casos de uso hades drawio (1)" src="https://github.com/user-attachments/assets/f66b1a18-25f5-45c8-b5ba-6c62ae7cd965" />
 
 El diagrama representa las funcionalidades principales del Módulo de comunicación y seguridad, mostrando la interacción entre los tres tipos de actores involucrados: Pasajero, Conductor y Administrador. Cada uno accede a diferentes casos de uso según su rol dentro de la plataforma.
