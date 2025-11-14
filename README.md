@@ -322,9 +322,31 @@ Este servicio externo provee a nuestro módulo:
 El backend consume esta API para activar alertas automáticas de desviación.
 ---
 
+### Diagrama de casos de uso
+
 ### Diagrama de Componentes Específico
+<img width="776" height="1551" alt="Casos de uso hades drawio (1)" src="https://github.com/user-attachments/assets/f66b1a18-25f5-45c8-b5ba-6c62ae7cd965" />
 
-
+El diagrama representa las funcionalidades principales del Módulo de comunicación y seguridad, mostrando la interacción entre los tres tipos de actores involucrados: Pasajero, Conductor y Administrador. Cada uno accede a diferentes casos de uso según su rol dentro de la plataforma.
+- **Pasajero y Conductor – Comunicación y Seguridad Operativa**
+  Tanto el pasajero como el conductor pueden:
+  Enviar y recibir mensajes, lo cual permite mantener coordinación antes y durante el viaje.
+  Activar el botón de emergencia, asegurando una respuesta inmediata ante una situación de riesgo.
+  Registrar reportes de comportamiento y calificar el viaje, contribuyendo al sistema de reputación.
+  Consultar el detalle de reportes, lo que les brinda transparencia sobre incidentes en los que han sido participantes o testigos.
+  Estas funcionalidades están enfocadas en mejorar la interacción, el acompañamiento seguro y la detección temprana de incidentes.
+- **Administrador – Supervisión y Gestión de Incidentes**
+  El administrador se encarga de supervisar la seguridad general del sistema mediante:
+  Consultar el historial de reportes, para revisar el comportamiento de los usuarios.
+  Atender y actualizar el estado de los reportes, gestionando los incidentes desde su recepción hasta su cierre.
+  Consultar el detalle de los reportes, lo que permite profundizar en cada caso antes de tomar decisiones.
+  Esto asegura la trazabilidad completa de alertas y reportes, fortaleciendo el control institucional y el seguimiento de situaciones críticas.
+- **Integración entre Roles**
+  El diagrama muestra cómo los casos de uso de seguridad (reportes, emergencias, calificaciones) están conectados tanto a los usuarios comunes como al administrador.
+  Esto refleja que:
+  - Los usuarios generan información de seguridad.
+  - El administrador procesa y gestiona esa información.
+  Esta relación crea un flujo continuo de supervisión y respuesta.
 
 ---
 
@@ -340,9 +362,5 @@ El backend consume esta API para activar alertas automáticas de desviación.
 
 ---
 
-### Diagrama de Despliegue Específico del Módulo
 
-
-
----
 
