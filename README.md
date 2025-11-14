@@ -352,8 +352,68 @@ El diagrama representa las funcionalidades principales del Módulo de comunicaci
 
 ### Diagrama de Clases
 
+El siguiente diagrama representa la arquitectura orientada a objetos del módulo de comunicación, chat, alertas y reportes de seguridad del sistema RIDECI. El modelo combina patrones de diseño como Observer, Strategy, Adapter, Factory Method y relaciones UML como composición, agregación y dependencias.
 
+![alt text](docs/images/DiagramaClases.png)
 
+1. Users
+
+Representa a los usuarios del sistema (conductores y pasajeros).
+Se relacionan con mensajes, alertas, reportes y viajes.
+
+2. Mensajería (Chat)
+
+Hay una interfaz Client, que define las operaciones del chat.
+Dos implementaciones:
+
+- PassengerGroupChat -> chat entre pasajeros.
+
+- TripChat -> chat durante un viaje (entre pasajero y conductor).
+
+3. Alertas
+
+La clase Alert representa una alerta generada durante un viaje (emergencia, desvío, accidente, etc.).
+
+La alerta usa enums:
+
+- AlertType (EMERGENCY, ACCIDENT, etc.) -> tipo de alerta
+
+- AlertStatus (SENT, IN_PROCESS, RESOLVED) -> estado de la alerta
+
+4. Viajes
+
+Viaje con estado (TripStatus).
+Contiene:
+
+- Alertas (composición)
+
+- Chat del viaje (composición)
+
+- Calificaciones
+
+Es el centro donde ocurren mensajes, alertas y evaluaciones.
+
+5. Reportes y Seguridad
+
+Dos clases:
+
+- Report → reporte individual.
+
+- ReportHistory → historial que agrupa reportes.
+
+6. Calificaciones (Rating)
+
+Evaluaciones al finalizar un viaje.
+
+**Patrones  de diseño**
+
+- Observer -> Para el sistema de notificaciones (chat en tiempo real, alertas automáticas, calificaciones).
+
+- Strategy -> Para manejar distintos tipos de alertas (Emergencia, DesviaciónRuta, accidente).
+
+- Factory Method -> Para crear objetos de tipo Alerta o Reporte según el evento.
+
+- Adapter -> Para integrar servicios externos (geolocalización, notificaciones, mensajería).
 ---
 
 ### Diagrama de Bases de Datos
