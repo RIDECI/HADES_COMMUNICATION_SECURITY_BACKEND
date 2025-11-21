@@ -18,7 +18,7 @@
     <description>Final Project DOSW - HADES Communication Security Backend</description>
 
     <properties>
-        <java.version>17</java.version>
+        <java.version>21</java.version>
         <jacoco.version>0.8.13</jacoco.version>
         <sonar.projectKey>HADES_COMMUNICATION_SECURITY_BACKEND</sonar.projectKey>
         <sonar.projectName>HADES_COMMUNICATION_SECURITY_BACKEND</sonar.projectName>

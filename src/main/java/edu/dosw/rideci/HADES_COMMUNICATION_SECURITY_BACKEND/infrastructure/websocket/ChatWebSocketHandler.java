@@ -13,6 +13,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.dtos.response.MessageResponse;
+import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.events.MessageSentEvent;
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.service.ConversationService;
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.entities.Message;
 import lombok.Data;
@@ -73,6 +74,27 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             }
         }
     }
+
+    public void sendMessageToConversation(String conversationId, MessageSentEvent event) {
+        try {
+            String json = mapper.writeValueAsString(event);
+
+            if (!activeSessions.containsKey(conversationId)) {
+                System.out.println("⚠️ No hay sesiones activas para conversacion " + conversationId);
+                return;
+            }
+
+            for (WebSocketSession session : activeSessions.get(conversationId)) {
+                if (session.isOpen()) {
+                    session.sendMessage(new TextMessage(json));
+                }
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error enviando mensaje por WebSocket", e);
+        }
+    }
+
 
     @Data
     private static class IncomingMessage {

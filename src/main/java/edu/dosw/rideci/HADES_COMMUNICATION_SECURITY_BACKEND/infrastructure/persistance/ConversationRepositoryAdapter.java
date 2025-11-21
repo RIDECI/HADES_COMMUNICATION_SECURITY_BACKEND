@@ -1,5 +1,7 @@
 package edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.infrastructure.persistance;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Repository;
 import lombok.RequiredArgsConstructor;
 
@@ -24,8 +26,9 @@ public class ConversationRepositoryAdapter implements ConversationRepositoryPort
     }
 
     @Override
-    public Conversation findById(String id) {
-        return conversationRepository.findById(id).orElse(null);
+    public Optional<Conversation> findById(String id) {
+        return conversationRepository.findById(id);
     }
+
 }
 

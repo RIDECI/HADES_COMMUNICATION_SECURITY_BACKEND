@@ -10,6 +10,5 @@ import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.entities.Mess
  * Repositorio para los mensajes.
  */
 public interface MessageRepository extends MongoRepository<Message, String> {
-
-    List<Message> findByConversationId(String conversationId);
+    List<Message> findByConversationId(String id);
 }

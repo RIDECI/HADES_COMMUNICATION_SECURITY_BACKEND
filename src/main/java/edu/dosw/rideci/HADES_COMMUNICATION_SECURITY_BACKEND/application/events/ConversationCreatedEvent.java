@@ -18,11 +18,12 @@ public class ConversationCreatedEvent {
 
     private String conversationId;
 
-    private String tripId; 
+    private Long tripId; 
 
     private List<String> participants;
 
     private String type; 
 
     private LocalDateTime createdAt;
+    
 }

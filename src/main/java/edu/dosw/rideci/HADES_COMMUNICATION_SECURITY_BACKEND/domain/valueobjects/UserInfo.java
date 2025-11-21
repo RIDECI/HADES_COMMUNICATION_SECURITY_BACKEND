@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Clase que maneka la información basica de  un usuario.
+ * Clase que maneja la información basica de  un usuario.
  * 
  */
 @Data

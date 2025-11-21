@@ -28,22 +28,18 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
     private final ConversationRepositoryPort convRepo;
     private final MessageRepositoryPort msgRepo;
     private final ConversationMapper mapper;
-    private final TripClient tripClient;
     private final EventPublisher eventPublisher;
 
     @Override
     @Transactional
     public String createChat(List<String> participantIds, ConversationType chatType, Long travelId) {
-        if (travelId != null && !tripClient.tripExists(travelId)) {
-            throw new ConversationException("Trip no válido o no existe");
-        }
 
         List<Participant> participants = participantIds.stream()
-                                                       .map(Participant::new)
-                                                       .toList();
+                .map(Participant::new)
+                .toList();
 
         Conversation conv = new Conversation();
-        conv.setTripId(travelId);
+        conv.setTripId(travelId); 
         conv.setType(chatType);
         conv.setParticipants(participants);
 
@@ -64,24 +60,25 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
 
     @Override
     @Transactional
-    public void sendMessage(String chatId, Message message) {
-        if (!convRepo.existsById(chatId)) {
+    public void sendMessage(String conversationId, Message message) {
+
+        if (!convRepo.existsById(conversationId)) {
             throw new ConversationException("Conversation no encontrada");
         }
 
         msgRepo.save(message);
 
-        MessageSentEvent msgEvent = MessageSentEvent.builder()
-                .conversationId(chatId)
+        MessageSentEvent event = MessageSentEvent.builder()
+                .conversationId(conversationId)
                 .messageId(message.getMessageId())
                 .senderId(message.getSenderId())
                 .content(message.getContent())
                 .sentAt(message.getTimestamp().toInstant()
-                               .atZone(java.time.ZoneId.systemDefault())
-                               .toLocalDateTime())
+                        .atZone(java.time.ZoneId.systemDefault())
+                        .toLocalDateTime())
                 .build();
 
-        eventPublisher.publish(msgEvent, "message.sent");
+        eventPublisher.publish(event, "chat.message");
     }
 
     public List<MessageResponse> getMessages(String conversationId) {
@@ -90,14 +87,19 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
         }
 
         return msgRepo.findByConversationId(conversationId)
-                      .stream()
-                      .map(mapper::toMessageResponse)
-                      .toList();
+                .stream()
+                .map(mapper::toMessageResponse)
+                .toList();
     }
 
     public ConversationResponse getConversation(String conversationId) {
         return convRepo.findById(conversationId)
-                       .map(mapper::toConversationResponse)
-                       .orElseThrow(() -> new ConversationException("Conversation no encontrada"));
+                .map(mapper::toConversationResponse)
+                .orElseThrow(() -> new ConversationException("Conversation no encontrada"));
     }
+
+    public MessageResponse toMessageResponse(Message message) {
+        return mapper.toMessageResponse(message);
+    }
+
 }

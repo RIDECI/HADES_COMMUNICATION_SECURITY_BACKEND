@@ -4,6 +4,10 @@ import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.rabbit.annotation.EnableRabbit;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,25 +15,86 @@ import org.springframework.context.annotation.Configuration;
  * Configuración de RabbitMQ para el módulo de Comunicación y Seguridad. Define los componentes de mensajería necesarios 
  * para la comunicación asíncrona con otros microservicios del sistema HADES, específicamente para eventos de usuarios.
  */
+
 @Configuration
+@EnableRabbit
 public class RabbitMQConfig {
 
-    public static final String USER_EXCHANGE = "user.exchange";
-    public static final String USER_QUEUE = "user.events.queue";
-    public static final String USER_ROUTING_KEY = "user.events";
+    public static final String CHAT_EXCHANGE = "rideci.chat.exchange";
+    public static final String CHAT_ROUTING_KEY = "chat.message";
+    public static final String CHAT_QUEUE = "rideci.chat.queue";
 
     @Bean
-    public TopicExchange exchange() {
-        return new TopicExchange(USER_EXCHANGE);
+    public TopicExchange chatExchange() {
+        return new TopicExchange(CHAT_EXCHANGE, true, false);
     }
 
     @Bean
-    public Queue queue() {
+    public Queue chatQueue() {
+        return new Queue(CHAT_QUEUE, true);
+    }
+
+    @Bean
+    public Binding chatBinding() {
+        return BindingBuilder
+                .bind(chatQueue())
+                .to(chatExchange())
+                .with(CHAT_ROUTING_KEY);
+    }
+
+    public static final String USER_EXCHANGE = "rideci.user.exchange";
+    public static final String USER_ROUTING_KEY = "user.created";
+    public static final String USER_QUEUE = "rideci.user.queue";
+
+    @Bean
+    public TopicExchange userExchange() {
+        return new TopicExchange(USER_EXCHANGE, true, false);
+    }
+
+    @Bean
+    public Queue userQueue() {
         return new Queue(USER_QUEUE, true);
     }
 
     @Bean
-    public Binding binding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(USER_ROUTING_KEY);
+    public Binding userBinding() {
+        return BindingBuilder
+                .bind(userQueue())
+                .to(userExchange())
+                .with(USER_ROUTING_KEY);
     }
+
+    public static final String TRIP_EXCHANGE = "rideci.trip.exchange";
+    public static final String TRIP_ROUTING_KEY = "trip.created";
+    public static final String TRIP_QUEUE = "rideci.trip.created.queue";
+
+    @Bean
+    public TopicExchange tripExchange() {
+        return new TopicExchange(TRIP_EXCHANGE);
+    }
+
+    @Bean
+    public Queue tripQueue() {
+        return new Queue(TRIP_QUEUE, true);
+    }
+
+    @Bean
+    public Binding tripBinding() {
+        return BindingBuilder.bind(tripQueue()).to(tripExchange()).with(TRIP_ROUTING_KEY);
+    }
+
+
+    @Bean
+public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
+        return new Jackson2JsonMessageConverter();
+    }
+
+    @Bean
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+        RabbitTemplate template = new RabbitTemplate(connectionFactory);
+        template.setMessageConverter(jackson2JsonMessageConverter());
+        return template;
+    }
+
 }
+
