@@ -37,36 +37,12 @@ public class RabbitMQConfig {
                 .with(CHAT_ROUTING_KEY);
     }
 
-
-    public static final String USER_EXCHANGE = "rideci.user.exchange";
-    public static final String USER_ROUTING_KEY = "user.created";
-    public static final String USER_QUEUE = "rideci.user.queue";
-
-    @Bean
-    public TopicExchange userExchange() {
-        return new TopicExchange(USER_EXCHANGE, true, false);
-    }
-
-    @Bean
-    public Queue userQueue() {
-        return new Queue(USER_QUEUE, true);
-    }
-
-    @Bean
-    public Binding userBinding() {
-        return BindingBuilder
-                .bind(userQueue())
-                .to(userExchange())
-                .with(USER_ROUTING_KEY);
-    }
-
-
     public static final String TRIP_EXCHANGE = "travel.exchange";
 
     public static final String TRIP_CREATED_ROUTING_KEY = "travel.created";
     public static final String TRIP_CREATED_QUEUE = "rideci.trip.created.queue";
 
-    public static final String TRIP_FINISHED_ROUTING_KEY = "trip.finished";
+    public static final String TRIP_FINISHED_ROUTING_KEY = "travel.completed";
     public static final String TRIP_FINISHED_QUEUE = "rideci.trip.finished.queue";
 
     @Bean
