@@ -43,19 +43,16 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
     private final EventPublisher eventPublisher;
 
     @Override
-        @Transactional
-        public String createChat(CreateConversationCommand command) {
+    @Transactional
+    public String createChat(CreateConversationCommand command) {
 
         Conversation conv = new Conversation();
         conv.setTripId(command.getTripId());
         conv.setType(command.getChatType());
+        conv.setParticipants(command.getParticipants());
+        conv.setTravelStatus(command.getTravelStatus());
 
-        conv.setParticipants(command.getParticipants()); 
-
-        Status travelStatus = command.getTravelStatus();
-        conv.setTravelStatus(travelStatus);
-
-        boolean isActive = (travelStatus == Status.IN_COURSE || travelStatus == Status.ACTIVE);
+        boolean isActive = command.getTravelStatus() == Status.IN_COURSE || command.getTravelStatus() == Status.ACTIVE;
         conv.setActive(isActive);
 
         convRepo.save(conv);
@@ -63,20 +60,19 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
         ConversationCreatedEvent event = ConversationCreatedEvent.builder()
                 .conversationId(conv.getId())
                 .tripId(conv.getTripId())
-                .participants(command.getParticipants()) 
+                .participants(command.getParticipants())
                 .type(conv.getType().name())
                 .createdAt(LocalDateTime.now())
                 .build();
 
         eventPublisher.publish(
                 event,
-                RabbitMQConfig.CHAT_EXCHANGE,
-                "conversation.created"
+                RabbitMQConfig.CONVERSATION_EXCHANGE,
+                RabbitMQConfig.CONVERSATION_CREATED_ROUTING_KEY
         );
 
         return conv.getId();
-        }
-
+    }
 
     @Override
     @Transactional
@@ -92,8 +88,7 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
                 .messageId(message.getMessageId())
                 .senderId(message.getSenderId())
                 .content(message.getContent())
-                .sentAt(message.getTimestamp()
-                        .toInstant()
+                .sentAt(message.getTimestamp().toInstant()
                         .atZone(java.time.ZoneId.systemDefault())
                         .toLocalDateTime())
                 .build();
@@ -101,7 +96,7 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
         eventPublisher.publish(
                 event,
                 RabbitMQConfig.CHAT_EXCHANGE,
-                "chat.message"
+                RabbitMQConfig.CHAT_ROUTING_KEY
         );
     }
 
@@ -121,17 +116,14 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
                 .orElseThrow(() -> new ConversationException("Conversation no encontrada"));
     }
 
-    public MessageResponse toMessageResponse(Message message) {
-        return mapper.toMessageResponse(message);
-    }
-
+    @Override
     @Transactional
     public void updateStatus(Long tripId, Status status) {
         Conversation conv = convRepo.findByTripId(tripId)
                 .orElseThrow(() -> new ConversationException(
                         "No existe conversación para el tripId: " + tripId));
 
-        boolean isActive = (status == Status.IN_COURSE || status == Status.ACTIVE);
+        boolean isActive = status == Status.IN_COURSE || status == Status.ACTIVE;
         conv.setActive(isActive);
         conv.setTravelStatus(status);
         conv.setUpdatedAt(new Date());
@@ -151,4 +143,9 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
             );
         }
     }
+
+    public MessageResponse toMessageResponse(Message message) {
+        return mapper.toMessageResponse(message);
+    }
+
 }

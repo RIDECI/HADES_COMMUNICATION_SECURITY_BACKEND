@@ -14,7 +14,7 @@ public class TravelCompletedEventListener {
         this.tripEventService = tripEventService;
     }
 
-    @RabbitListener(queues = "rideci.trip.finished.queue")
+    @RabbitListener(queues = "travel.completed.queue")
     public void handleTripFinished(TravelCompletedEvent event) {
         tripEventService.processTripFinished(event);
     }
