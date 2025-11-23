@@ -61,7 +61,7 @@ public class RabbitMQConfig {
     }
 
 
-    public static final String TRIP_EXCHANGE = "rideci.trip.exchange";
+    public static final String TRIP_EXCHANGE = "travel.exchange";
 
     public static final String TRIP_CREATED_ROUTING_KEY = "travel.created";
     public static final String TRIP_CREATED_QUEUE = "rideci.trip.created.queue";
