@@ -16,7 +16,16 @@ public class TravelEventListener {
 
     @RabbitListener(queues = "security.travel.created.queue")
     public void handleTripCreated(TravelCreatedEvent event) {
-        tripEventService.processTripCreated(event);
+        try {
+            System.out.println("✅ Evento TravelCreated recibido en HADES");
+            System.out.println("📦 Contenido del evento: " + event);
+            tripEventService.processTripCreated(event);
+            System.out.println("✅ Evento procesado exitosamente");
+        } catch (Exception e) {
+            System.err.println("❌ Error procesando TravelCreatedEvent: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
 }

@@ -16,6 +16,15 @@ public class TravelCompletedEventListener {
 
     @RabbitListener(queues = "security.travel.completed.queue")
     public void handleTripFinished(TravelCompletedEvent event) {
-        tripEventService.processTripFinished(event);
+        try {
+            System.out.println("✅ Evento TravelCompleted recibido en HADES");
+            System.out.println("📦 Contenido del evento: " + event);
+            tripEventService.processTripFinished(event);
+            System.out.println("✅ Evento completado procesado exitosamente");
+        } catch (Exception e) {
+            System.err.println("❌ Error procesando TravelCompletedEvent: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 }

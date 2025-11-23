@@ -25,6 +25,7 @@ public class TripEventService {
         var participantIds = event.getPassengersId();
 
         CreateConversationCommand command = CreateConversationCommand.builder()
+                .tripId(event.getTravelId())
                 .participants(participantIds)
                 .chatType(event.getTravelType())
                 .travelStatus(event.getState())
