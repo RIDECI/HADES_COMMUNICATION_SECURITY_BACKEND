@@ -2,7 +2,7 @@ package edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.dtos.re
 
 import java.util.List;
 
-import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.entities.Participant;
+import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.models.Participant;
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.enums.ConversationType;
 import lombok.Data;
 

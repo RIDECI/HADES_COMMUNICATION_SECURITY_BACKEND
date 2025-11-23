@@ -11,11 +11,6 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * Configuración de RabbitMQ para el módulo de Comunicación y Seguridad. Define los componentes de mensajería necesarios 
- * para la comunicación asíncrona con otros microservicios del sistema HADES, específicamente para eventos de usuarios.
- */
-
 @Configuration
 @EnableRabbit
 public class RabbitMQConfig {
@@ -42,6 +37,7 @@ public class RabbitMQConfig {
                 .with(CHAT_ROUTING_KEY);
     }
 
+
     public static final String USER_EXCHANGE = "rideci.user.exchange";
     public static final String USER_ROUTING_KEY = "user.created";
     public static final String USER_QUEUE = "rideci.user.queue";
@@ -64,28 +60,49 @@ public class RabbitMQConfig {
                 .with(USER_ROUTING_KEY);
     }
 
+
     public static final String TRIP_EXCHANGE = "rideci.trip.exchange";
-    public static final String TRIP_ROUTING_KEY = "trip.created";
-    public static final String TRIP_QUEUE = "rideci.trip.created.queue";
+
+    public static final String TRIP_CREATED_ROUTING_KEY = "travel.created";
+    public static final String TRIP_CREATED_QUEUE = "rideci.trip.created.queue";
+
+    public static final String TRIP_FINISHED_ROUTING_KEY = "trip.finished";
+    public static final String TRIP_FINISHED_QUEUE = "rideci.trip.finished.queue";
 
     @Bean
     public TopicExchange tripExchange() {
-        return new TopicExchange(TRIP_EXCHANGE);
+        return new TopicExchange(TRIP_EXCHANGE, true, false);
     }
 
     @Bean
-    public Queue tripQueue() {
-        return new Queue(TRIP_QUEUE, true);
+    public Queue tripCreatedQueue() {
+        return new Queue(TRIP_CREATED_QUEUE, true);
     }
 
     @Bean
-    public Binding tripBinding() {
-        return BindingBuilder.bind(tripQueue()).to(tripExchange()).with(TRIP_ROUTING_KEY);
+    public Queue tripFinishedQueue() {
+        return new Queue(TRIP_FINISHED_QUEUE, true);
+    }
+
+    @Bean
+    public Binding tripCreatedBinding() {
+        return BindingBuilder
+                .bind(tripCreatedQueue())
+                .to(tripExchange())
+                .with(TRIP_CREATED_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding tripFinishedBinding() {
+        return BindingBuilder
+                .bind(tripFinishedQueue())
+                .to(tripExchange())
+                .with(TRIP_FINISHED_ROUTING_KEY);
     }
 
 
     @Bean
-public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
+    public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
 
@@ -97,4 +114,3 @@ public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
     }
 
 }
-

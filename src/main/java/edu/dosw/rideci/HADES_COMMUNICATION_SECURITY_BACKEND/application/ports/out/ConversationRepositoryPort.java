@@ -8,4 +8,5 @@ public interface ConversationRepositoryPort {
     Conversation save(Conversation c);
     boolean existsById(String id);
     Optional<Conversation> findById(String id);
+    Optional<Conversation> findByTripId(Long tripId);
 }

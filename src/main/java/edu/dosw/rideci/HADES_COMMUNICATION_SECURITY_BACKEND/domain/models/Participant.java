@@ -1,4 +1,4 @@
-package edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.entities;
+package edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.models;
 
 import lombok.Data;
 

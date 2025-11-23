@@ -5,9 +5,8 @@ package edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.enums;
  * 
  */
 public enum TravelStatus {
-    PLANNED,
+    IN_COURSE,
     ACTIVE,
-    COMPPLETED,
+    COMPLETED,
     CANCELLED,
-    EMERGENCY
 }

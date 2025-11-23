@@ -10,6 +10,7 @@ import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.dtos.req
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.dtos.request.SendMessageRequest;
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.dtos.response.ConversationResponse;
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.dtos.response.MessageResponse;
+import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.events.command.CreateConversationCommand;
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.service.ConversationService;
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.entities.Message;
 
@@ -31,8 +32,13 @@ public class ConversationController {
                 .map(ParticipantRequest::getUserId)
                 .toList();
 
-        String conversationId =
-                service.createChat(participantIds, req.getType(), req.getTripId());
+        CreateConversationCommand command = CreateConversationCommand.builder()
+                .participants(participantIds)
+                .chatType(req.getType())
+                .tripId(req.getTripId())
+                .build();
+
+        String conversationId = service.createChat(command);
 
         ConversationResponse resp = service.getConversation(conversationId);
 
@@ -62,3 +68,4 @@ public class ConversationController {
         return ResponseEntity.ok(resp);
     }
 }
+

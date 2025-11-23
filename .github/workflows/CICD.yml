@@ -97,7 +97,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: test
-    if: github.ref == 'refs/heads/testing' || github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/testing' || github.ref == 'refs/heads/main || github.ref == 'refs/heads/develop'
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
