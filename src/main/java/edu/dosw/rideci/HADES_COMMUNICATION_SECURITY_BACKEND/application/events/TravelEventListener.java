@@ -15,7 +15,7 @@ public class TravelEventListener {
         this.tripEventService = tripEventService;
     }
 
-    @RabbitListener(queues = "travel.created.queue")
+    @RabbitListener(queues = "security.travel.created.queue")
     public void handleTripCreated(TravelCreatedEvent event) {
         tripEventService.processTripCreated(event);
     }

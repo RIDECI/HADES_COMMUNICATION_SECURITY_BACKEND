@@ -44,10 +44,10 @@ public class RabbitMQConfig {
     public static final String TRIP_EXCHANGE = "travel.exchange";
 
     public static final String TRIP_CREATED_ROUTING_KEY = "travel.created";
-    public static final String TRIP_CREATED_QUEUE = "travel.created.queue";
+    public static final String TRIP_CREATED_QUEUE = "security.travel.created.queue";
 
     public static final String TRIP_FINISHED_ROUTING_KEY = "travel.completed";
-    public static final String TRIP_FINISHED_QUEUE = "travel.completed.queue";
+    public static final String TRIP_FINISHED_QUEUE = "security.travel.completed.queue";
 
     @Bean
     public TopicExchange tripExchange() {
