@@ -217,6 +217,11 @@ Implementa los **detalles técnicos**: controladores REST, persistencia, configu
 
 ### Diagramas del Módulo
 
+### Diagrama de Contexto
+
+<img width="512" height="299" alt="image" src="https://github.com/user-attachments/assets/1389eca0-7874-4f40-916d-fc48de336a03" />
+
+
 ### Diagrama de Despliegue
 
 ![alt text](docs/images/DiagramaDespliegue.png)
@@ -322,6 +327,72 @@ Este servicio externo provee a nuestro módulo:
 El backend consume esta API para activar alertas automáticas de desviación.
 ---
 ### Diagrama de Componentes Específico
+
+<img width="600" height="298" alt="image" src="https://github.com/user-attachments/assets/665a0c30-0801-4a8e-bcd7-61715479149b" />
+
+El diagrama de componentes del Módulo de Comunicación y Seguridad representa la estructura interna del microservicio encargado de gestionar la interacción entre usuarios, la seguridad preventiva durante los viajes y la administración de incidentes dentro de la plataforma RidECI. Cada bloque del diagrama cumple una función específica dentro del ecosistema, y en conjunto garantizan una operación confiable, monitoreada y orientada a la protección del usuario.
+**1. Casos de uso internos del microservicio**
+
+Estos componentes representan las funcionalidades centrales del módulo:
+Chat UseCase
+ Gestiona la comunicación entre conductor y pasajeros antes y durante un viaje. Se encarga del envío, recepción y registro de mensajes, verificando siempre la identidad del usuario mediante el AuthAdapter.
+
+
+EmergencyAlert UseCase
+ Permite activar el botón de emergencia. Cuando el usuario lo presiona, este caso de uso recopila la ubicación, genera una alerta y la envía al NotificationAdapter para informar al contacto de emergencia o a la unidad institucional de seguridad.
+
+
+Reputation UseCase
+ Administra el sistema de calificaciones después de cada viaje. Recibe las evaluaciones y las envía a UserSecurity UseCase o a otros módulos encargados de guardar el historial reputacional del usuario.
+
+
+UserSecurity UseCase
+ Se encarga del historial de reportes y conducta del usuario. Almacena comportamientos, advertencias e incidentes que puedan afectar la reputación o la seguridad en la plataforma.
+
+
+**2. Componentes especializados de seguridad**
+
+Son piezas internas enfocadas en la protección activa del usuario:
+RouteDeviationDetector
+ Monitorea en tiempo real la ruta del viaje mediante el módulo externo de geolocalización. Si detecta una desviación significativa de la ruta esperada, genera un "Deviation Alert" que es enviado al EmergencyAlert UseCase o al NotificationAdapter según el caso.
+
+
+IncidentManager
+ Centraliza los reportes de incidentes generados por los usuarios o automáticamente por el sistema (por ejemplo, desvíos de ruta). También es capaz de compartir esta información con el módulo administrativo para el seguimiento institucional.
+
+
+**3. Adaptadores del microservicio**
+
+Facilitan la comunicación del módulo con otros microservicios del sistema:
+AuthAdapter
+ Valida la identidad de los usuarios antes de permitir chat, envío de alertas o reportes. Se conecta con el microservicio de User Management.
+
+
+NotificationAdapter
+ Envía notificaciones push, mensajes SMS o correos según el tipo de alerta generada. Es clave para el botón de emergencia y para avisos por desviación de ruta.
+
+
+**4. Módulos externos conectados**
+
+Estos bloques representan microservicios o funcionalidades externas que interactúan con el módulo:
+User Management
+ Proporciona información de los perfiles, roles y validaciones de usuarios.
+
+
+Travel Management
+ Ofrece la información de los viajes activos, permitiendo detectar desviaciones, enviar mensajes de chat relacionados al viaje y reportar incidentes.
+
+
+Geolocalization Routes and Tracking
+ Entrega la ubicación en tiempo real y la ruta planificada. Es indispensable para el RouteDeviationDetector.
+
+
+Alerts (Servicio externo de alertas generales)
+ Se utiliza para registrar o enviar notificaciones generales o institucionales que no están directamente vinculadas al botón de emergencia.
+
+
+
+
 ---
 ### Diagrama de casos de uso
 
@@ -417,6 +488,20 @@ Evaluaciones al finalizar un viaje.
 ---
 
 ### Diagrama de Bases de Datos
+
+<img width="387" height="463" alt="image" src="https://github.com/user-attachments/assets/3b9f2931-6040-44fb-9a0b-07ae3a847d56" />
+
+
+
+
+<img width="382" height="395" alt="image" src="https://github.com/user-attachments/assets/650cda9f-5376-4640-860c-b589470b7a17" />
+
+
+
+
+El diagrama de base de datos NoSQL para el módulo de Comunicación y Seguridad de RidECI representa la estructura principal de las colecciones que gestionan la interacción y protección de los usuarios durante los viajes. Se basa en dos colecciones externas (trips y users) que sirven como referencia para las funcionalidades del módulo. Las colecciones internas incluyen chats para la mensajería entre participantes, route_monitoring para el seguimiento geoespacial del trayecto, emergency_alerts para el manejo de situaciones críticas, ratings_and_reports para la evaluación de comportamiento, y user_reputatiopn para consolidar la reputación de cada usuario. El modelo utiliza documentos embebidos para almacenar mensajes y participantes dentro de los chats, así como detalles de reportes dentro de las calificaciones. También incorpora índices TTL para eliminar datos temporales y geoespaciales para el monitoreo en tiempo real. Las relaciones están claramente definidas mediante referencias y composición, lo que permite una implementación coherente, funcional y alineada con los requerimientos del sistema.
+
+
 
 
 
