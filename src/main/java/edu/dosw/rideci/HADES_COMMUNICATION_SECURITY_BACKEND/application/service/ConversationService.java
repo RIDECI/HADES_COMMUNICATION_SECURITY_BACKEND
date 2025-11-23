@@ -9,11 +9,12 @@ import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.ports.in
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.ports.out.ConversationRepositoryPort;
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.ports.out.MessageRepositoryPort;
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.ports.out.EventPublisher;
+
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.infrastructure.config.RabbitMQConfig;
 
-import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.entities.*;
-import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.enums.TravelStatus;
-import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.models.Participant;
+import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.entities.Conversation;
+import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.entities.Message;
+import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.enums.Status;
 
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.dtos.response.ConversationResponse;
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.dtos.response.MessageResponse;
@@ -42,22 +43,19 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
     private final EventPublisher eventPublisher;
 
     @Override
-    @Transactional
-    public String createChat(CreateConversationCommand command) {
-        List<Participant> participants = command.getParticipants()
-                .stream()
-                .map(Participant::new)
-                .toList();
+        @Transactional
+        public String createChat(CreateConversationCommand command) {
 
         Conversation conv = new Conversation();
         conv.setTripId(command.getTripId());
         conv.setType(command.getChatType());
-        conv.setParticipants(participants);
 
-        TravelStatus travelStatus = command.getTravelStatus();
+        conv.setParticipants(command.getParticipants()); 
+
+        Status travelStatus = command.getTravelStatus();
         conv.setTravelStatus(travelStatus);
 
-        boolean isActive = (travelStatus == TravelStatus.IN_COURSE || travelStatus == TravelStatus.ACTIVE);
+        boolean isActive = (travelStatus == Status.IN_COURSE || travelStatus == Status.ACTIVE);
         conv.setActive(isActive);
 
         convRepo.save(conv);
@@ -65,7 +63,7 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
         ConversationCreatedEvent event = ConversationCreatedEvent.builder()
                 .conversationId(conv.getId())
                 .tripId(conv.getTripId())
-                .participants(command.getParticipants())
+                .participants(command.getParticipants()) 
                 .type(conv.getType().name())
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -77,7 +75,8 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
         );
 
         return conv.getId();
-    }
+        }
+
 
     @Override
     @Transactional
@@ -127,29 +126,28 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
     }
 
     @Transactional
-    public void updateStatus(Long tripId, TravelStatus status) {
+    public void updateStatus(Long tripId, Status status) {
         Conversation conv = convRepo.findByTripId(tripId)
                 .orElseThrow(() -> new ConversationException(
                         "No existe conversación para el tripId: " + tripId));
 
-        boolean isActive = (status == TravelStatus.IN_COURSE || status == TravelStatus.ACTIVE);
+        boolean isActive = (status == Status.IN_COURSE || status == Status.ACTIVE);
         conv.setActive(isActive);
         conv.setTravelStatus(status);
         conv.setUpdatedAt(new Date());
 
         convRepo.save(conv);
 
-        if (status == TravelStatus.COMPLETED) {
+        if (status == Status.COMPLETED) {
             TripFinishEvent event = TripFinishEvent.builder()
-                    .id(tripId)
-                    .travelStatus(status)
+                    .travelId(tripId)
+                    .state(status)
                     .build();
 
-           
             eventPublisher.publish(
                     event,
                     RabbitMQConfig.TRIP_EXCHANGE,
-                    RabbitMQConfig.TRIP_FINISHED_ROUTING_KEY 
+                    RabbitMQConfig.TRIP_FINISHED_ROUTING_KEY
             );
         }
     }

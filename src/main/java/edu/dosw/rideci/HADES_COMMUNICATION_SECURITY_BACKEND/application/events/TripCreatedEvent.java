@@ -3,13 +3,12 @@ package edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.events;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.enums.ConversationType;
-import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.enums.TravelStatus;
-import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.models.Participant;
-import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.valueobjects.LocationVO;
+import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.enums.TravelType;
+import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.enums.Status;
+import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.valueobjects.Location;
 import lombok.*;
 
-@Getter @Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -17,10 +16,10 @@ public class TripCreatedEvent {
 
     private Long travelId;
     private Long driverId;
-    private TravelStatus status;
-    private LocationVO origin;
-    private LocationVO destiny;
-    private List<Participant> passangerId;
+    private Status state;                
+    private Location origin;             
+    private Location destiny;           
+    private List<Long> passengersId;    
+    private TravelType travelType;      
     private LocalDateTime departureDateAndTime;
-    private ConversationType conversationType;
 }

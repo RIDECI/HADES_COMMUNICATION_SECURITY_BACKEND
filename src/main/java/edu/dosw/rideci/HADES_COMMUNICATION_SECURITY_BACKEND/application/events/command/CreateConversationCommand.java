@@ -2,8 +2,8 @@ package edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.events.
 
 import java.util.List;
 
-import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.enums.ConversationType;
-import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.enums.TravelStatus;
+import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.enums.TravelType;
+import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.enums.Status;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,11 +11,11 @@ import lombok.Data;
 @Builder
 public class CreateConversationCommand {
 
-    private List<String> participants;
+    private List<Long> participants;
 
-    private ConversationType chatType;
+    private TravelType chatType;
 
-    private TravelStatus travelStatus;
+    private Status travelStatus;
 
     private Long tripId;
 }

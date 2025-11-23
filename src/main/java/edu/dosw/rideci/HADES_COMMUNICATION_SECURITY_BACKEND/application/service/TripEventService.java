@@ -22,18 +22,12 @@ public class TripEventService {
         System.out.println("🆔 Trip ID: " + event.getTravelId());
         System.out.println("🚗 Driver: " + event.getDriverId());
 
- 
-        var participantIds = event.getPassangerId()
-                .stream()
-                .map(p -> p.getUserId())
-                .toList();
+        var participantIds = event.getPassengersId();
 
-  
         CreateConversationCommand command = CreateConversationCommand.builder()
-                .participants(participantIds)
-                .chatType(event.getConversationType())
-                .tripId(event.getTravelId())
-                .travelStatus(event.getStatus())     
+                .participants(participantIds)          
+                .chatType(event.getTravelType())       
+                .travelStatus(event.getState())      
                 .build();
 
         createConversationUseCase.createChat(command);
@@ -42,12 +36,12 @@ public class TripEventService {
     public void processTripFinished(TripFinishEvent event) {
 
         System.out.println("🔧 Procesando TripFinishEvent...");
-        System.out.println("🆔 Trip ID: " + event.getId());
-        System.out.println("📌 Nuevo estado: " + event.getTravelStatus());
+        System.out.println("🆔 Trip ID: " + event.getTravelId());
+        System.out.println("📌 Nuevo estado: " + event.getState());
 
         updateConversationStatusUseCase.updateStatus(
-                event.getId(),
-                event.getTravelStatus()
+                event.getTravelId(),
+                event.getState()
         );
     }
 }
