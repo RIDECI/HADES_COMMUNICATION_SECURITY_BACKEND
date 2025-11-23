@@ -14,60 +14,40 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableRabbit
 public class RabbitMQConfig {
-
     public static final String CHAT_EXCHANGE = "rideci.chat.exchange";
     public static final String CHAT_ROUTING_KEY = "chat.message";
     public static final String CHAT_QUEUE = "rideci.chat.queue";
 
+    public static final String CONVERSATION_EXCHANGE = "rideci.conversation.exchange";
+    public static final String CONVERSATION_CREATED_ROUTING_KEY = "conversation.created";
+    public static final String CONVERSATION_CREATED_QUEUE = "rideci.conversation.created.queue";
+
     @Bean
-    public TopicExchange chatExchange() {
-        return new TopicExchange(CHAT_EXCHANGE, true, false);
+    public TopicExchange conversationExchange() {
+        return new TopicExchange(CONVERSATION_EXCHANGE, true, false);
     }
 
     @Bean
-    public Queue chatQueue() {
-        return new Queue(CHAT_QUEUE, true);
+    public Queue conversationCreatedQueue() {
+        return new Queue(CONVERSATION_CREATED_QUEUE, true);
     }
 
     @Bean
-    public Binding chatBinding() {
+    public Binding conversationCreatedBinding() {
         return BindingBuilder
-                .bind(chatQueue())
-                .to(chatExchange())
-                .with(CHAT_ROUTING_KEY);
+                .bind(conversationCreatedQueue())
+                .to(conversationExchange())
+                .with(CONVERSATION_CREATED_ROUTING_KEY);
     }
 
 
-    public static final String USER_EXCHANGE = "rideci.user.exchange";
-    public static final String USER_ROUTING_KEY = "user.created";
-    public static final String USER_QUEUE = "rideci.user.queue";
-
-    @Bean
-    public TopicExchange userExchange() {
-        return new TopicExchange(USER_EXCHANGE, true, false);
-    }
-
-    @Bean
-    public Queue userQueue() {
-        return new Queue(USER_QUEUE, true);
-    }
-
-    @Bean
-    public Binding userBinding() {
-        return BindingBuilder
-                .bind(userQueue())
-                .to(userExchange())
-                .with(USER_ROUTING_KEY);
-    }
-
-
-    public static final String TRIP_EXCHANGE = "rideci.trip.exchange";
+    public static final String TRIP_EXCHANGE = "travel.exchange";
 
     public static final String TRIP_CREATED_ROUTING_KEY = "travel.created";
-    public static final String TRIP_CREATED_QUEUE = "rideci.trip.created.queue";
+    public static final String TRIP_CREATED_QUEUE = "security.travel.created.queue";
 
-    public static final String TRIP_FINISHED_ROUTING_KEY = "trip.finished";
-    public static final String TRIP_FINISHED_QUEUE = "rideci.trip.finished.queue";
+    public static final String TRIP_FINISHED_ROUTING_KEY = "travel.completed";
+    public static final String TRIP_FINISHED_QUEUE = "security.travel.completed.queue";
 
     @Bean
     public TopicExchange tripExchange() {

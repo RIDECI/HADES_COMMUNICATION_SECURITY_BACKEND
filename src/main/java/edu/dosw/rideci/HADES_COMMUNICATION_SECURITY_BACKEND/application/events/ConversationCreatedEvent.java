@@ -20,7 +20,7 @@ public class ConversationCreatedEvent {
 
     private Long tripId; 
 
-    private List<String> participants;
+    private List<Long> participants;
 
     private String type; 
 

@@ -1,12 +1,10 @@
 package edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.infrastructure.api.controllers;
 
 import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.dtos.request.CreateConversationRequest;
-import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.dtos.request.ParticipantRequest;
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.dtos.request.SendMessageRequest;
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.dtos.response.ConversationResponse;
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.dtos.response.MessageResponse;
@@ -27,13 +25,9 @@ public class ConversationController {
     @PostMapping
     public ResponseEntity<ConversationResponse> create(@RequestBody CreateConversationRequest req) {
 
-        List<String> participantIds = req.getParticipants()
-                .stream()
-                .map(ParticipantRequest::getUserId)
-                .toList();
-
+    
         CreateConversationCommand command = CreateConversationCommand.builder()
-                .participants(participantIds)
+                .participants(req.getParticipants()) 
                 .chatType(req.getType())
                 .tripId(req.getTripId())
                 .build();
@@ -68,4 +62,3 @@ public class ConversationController {
         return ResponseEntity.ok(resp);
     }
 }
-

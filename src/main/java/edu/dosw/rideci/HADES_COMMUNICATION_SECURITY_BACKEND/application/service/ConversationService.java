@@ -9,19 +9,26 @@ import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.ports.in
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.ports.out.ConversationRepositoryPort;
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.ports.out.MessageRepositoryPort;
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.ports.out.EventPublisher;
-import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.entities.*;
-import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.enums.TravelStatus;
-import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.models.Participant;
+
+import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.infrastructure.config.RabbitMQConfig;
+
+import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.entities.Conversation;
+import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.entities.Message;
+import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.enums.Status;
+
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.dtos.response.ConversationResponse;
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.dtos.response.MessageResponse;
+
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.events.ConversationCreatedEvent;
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.events.MessageSentEvent;
-import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.events.TripFinishEvent;
+import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.events.TravelCompletedEvent;
+
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.events.command.CreateConversationCommand;
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.exceptions.ConversationException;
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.mappers.ConversationMapper;
 
 import lombok.RequiredArgsConstructor;
+
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -38,20 +45,14 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
     @Override
     @Transactional
     public String createChat(CreateConversationCommand command) {
-        List<Participant> participants = command.getParticipants()
-                .stream()
-                .map(Participant::new)
-                .toList();
 
         Conversation conv = new Conversation();
         conv.setTripId(command.getTripId());
         conv.setType(command.getChatType());
-        conv.setParticipants(participants);
+        conv.setParticipants(command.getParticipants());
+        conv.setTravelStatus(command.getTravelStatus());
 
-        TravelStatus travelStatus = command.getTravelStatus(); 
-        conv.setTravelStatus(travelStatus);
-
-        boolean isActive = (travelStatus == TravelStatus.IN_COURSE || travelStatus == TravelStatus.ACTIVE);
+        boolean isActive = command.getTravelStatus() == Status.IN_COURSE || command.getTravelStatus() == Status.ACTIVE;
         conv.setActive(isActive);
 
         convRepo.save(conv);
@@ -64,7 +65,11 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        eventPublisher.publish(event, "conversation.created");
+        eventPublisher.publish(
+                event,
+                RabbitMQConfig.CONVERSATION_EXCHANGE,
+                RabbitMQConfig.CONVERSATION_CREATED_ROUTING_KEY
+        );
 
         return conv.getId();
     }
@@ -83,13 +88,16 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
                 .messageId(message.getMessageId())
                 .senderId(message.getSenderId())
                 .content(message.getContent())
-                .sentAt(message.getTimestamp()
-                        .toInstant()
+                .sentAt(message.getTimestamp().toInstant()
                         .atZone(java.time.ZoneId.systemDefault())
                         .toLocalDateTime())
                 .build();
 
-        eventPublisher.publish(event, "chat.message");
+        eventPublisher.publish(
+                event,
+                RabbitMQConfig.CHAT_EXCHANGE,
+                RabbitMQConfig.CHAT_ROUTING_KEY
+        );
     }
 
     public List<MessageResponse> getMessages(String conversationId) {
@@ -108,30 +116,36 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
                 .orElseThrow(() -> new ConversationException("Conversation no encontrada"));
     }
 
-    public MessageResponse toMessageResponse(Message message) {
-        return mapper.toMessageResponse(message);
-    }
-
+    @Override
     @Transactional
-    public void updateStatus(Long tripId, TravelStatus status) {
+    public void updateStatus(Long tripId, Status status) {
         Conversation conv = convRepo.findByTripId(tripId)
                 .orElseThrow(() -> new ConversationException(
-                    "No existe conversación para el tripId: " + tripId));
+                        "No existe conversación para el tripId: " + tripId));
 
-        boolean isActive = (status == TravelStatus.IN_COURSE || status == TravelStatus.ACTIVE);
+        boolean isActive = status == Status.IN_COURSE || status == Status.ACTIVE;
         conv.setActive(isActive);
         conv.setTravelStatus(status);
         conv.setUpdatedAt(new Date());
 
         convRepo.save(conv);
 
-        if (status == TravelStatus.COMPLETED) {
-            TripFinishEvent event = TripFinishEvent.builder()
-                    .id(tripId)
-                    .travelStatus(status)
+        if (status == Status.COMPLETED) {
+            TravelCompletedEvent event = TravelCompletedEvent.builder()
+                    .travelId(tripId)
+                    .state(status)
                     .build();
-            eventPublisher.publish(event, "trip.finished");
+
+            eventPublisher.publish(
+                    event,
+                    RabbitMQConfig.TRIP_EXCHANGE,
+                    RabbitMQConfig.TRIP_FINISHED_ROUTING_KEY
+            );
         }
     }
-}
 
+    public MessageResponse toMessageResponse(Message message) {
+        return mapper.toMessageResponse(message);
+    }
+
+}

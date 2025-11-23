@@ -13,12 +13,13 @@ public class RabbitEventPublisher implements EventPublisher {
     private final RabbitTemplate rabbitTemplate;
 
     @Override
-    public void publish(Object event, String routingKey) {
+    public void publish(Object event, String exchange, String routingKey) {
         rabbitTemplate.convertAndSend(
-                RabbitMQConfig.CHAT_EXCHANGE,
+                exchange,
                 routingKey,
                 event
         );
     }
 }
+
 

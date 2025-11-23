@@ -2,16 +2,15 @@ package edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.dtos.re
 
 import java.util.List;
 
-import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.models.Participant;
-import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.enums.ConversationType;
+import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.domain.enums.TravelType;
 import lombok.Data;
 
 @Data
 public class ConversationResponse {
     private String id;
     private Long tripId;
-    private ConversationType type;
+    private TravelType type;
     private boolean active;
-    private List<Participant> participants;
+    private List<Long> participants;
 }
 

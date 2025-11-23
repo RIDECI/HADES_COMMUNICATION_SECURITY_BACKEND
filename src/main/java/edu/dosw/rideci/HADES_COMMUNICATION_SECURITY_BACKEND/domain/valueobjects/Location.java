@@ -6,7 +6,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LocationVO {
+public class Location {
     private double longitude;
     private double latitude;
     private String direction;
