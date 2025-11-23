@@ -12,7 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TripCreatedEvent {
+public class TravelCreatedEvent {
 
     private Long travelId;
     private Long driverId;

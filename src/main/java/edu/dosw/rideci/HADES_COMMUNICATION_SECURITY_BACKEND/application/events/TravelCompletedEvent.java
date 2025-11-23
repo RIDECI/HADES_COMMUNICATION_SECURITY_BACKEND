@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TripFinishEvent {
+public class TravelCompletedEvent {
     private Long travelId;
     private Status state;
 }

@@ -21,7 +21,7 @@ import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.dtos.res
 
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.events.ConversationCreatedEvent;
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.events.MessageSentEvent;
-import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.events.TripFinishEvent;
+import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.events.TravelCompletedEvent;
 
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.events.command.CreateConversationCommand;
 import edu.dosw.rideci.HADES_COMMUNICATION_SECURITY_BACKEND.application.exceptions.ConversationException;
@@ -139,7 +139,7 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
         convRepo.save(conv);
 
         if (status == Status.COMPLETED) {
-            TripFinishEvent event = TripFinishEvent.builder()
+            TravelCompletedEvent event = TravelCompletedEvent.builder()
                     .travelId(tripId)
                     .state(status)
                     .build();
