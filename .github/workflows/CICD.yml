@@ -110,7 +110,7 @@ jobs:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
           echo "🎆 Desplegando en Railway..."
-          railway up --service=backend-RIDECI --environment=${GITHUB_REF##*/}
+          railway up --service=HADES_COMMUNICATION_SECURITY_BACKEND --environment=${GITHUB_REF##*/}
 
       - name: Notificar éxito del despliegue
         if: success()
