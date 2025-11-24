@@ -26,6 +26,7 @@ public class EmergencyAlert {
     private Long tripId;
     private String conversationId;
     @Indexed
+    private String type;
     private Long userId;
     private LocationVO currentLocation;
     private String additionalInfo;
