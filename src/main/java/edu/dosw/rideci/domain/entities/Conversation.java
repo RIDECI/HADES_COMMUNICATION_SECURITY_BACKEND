@@ -2,6 +2,7 @@ package edu.dosw.rideci.domain.entities;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import edu.dosw.rideci.domain.enums.TravelType;
 import edu.dosw.rideci.domain.enums.Status;
@@ -16,7 +17,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 public class Conversation {
     @Id
-    private String id;
+    private String id = UUID.randomUUID().toString();
     private Long tripId;
     private TravelType type;
     private Status travelStatus;

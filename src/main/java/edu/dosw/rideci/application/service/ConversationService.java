@@ -35,8 +35,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ConversationService
-        implements CreateConversationUseCase, SendMessageUseCase, UpdateConversationStatusUseCase {
+public class ConversationService implements CreateConversationUseCase, SendMessageUseCase, UpdateConversationStatusUseCase {
 
     private final ConversationRepositoryPort convRepo;
     private final MessageRepositoryPort msgRepo;
@@ -69,6 +68,7 @@ public class ConversationService
         eventPublisher.publish(
                 event,
                 RabbitMQConfig.CONVERSATION_EXCHANGE,
+        
                 RabbitMQConfig.CONVERSATION_CREATED_ROUTING_KEY);
 
         return conv.getId();
