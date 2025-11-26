@@ -21,6 +21,27 @@ public class RabbitMQConfig {
     public static final String CONVERSATION_EXCHANGE = "rideci.conversation.exchange";
     public static final String CONVERSATION_CREATED_ROUTING_KEY = "conversation.created";
     public static final String CONVERSATION_CREATED_QUEUE = "rideci.conversation.created.queue";
+    public static final String EMERGENCY_EXCHANGE = "rideci.emergency.exchange";
+    public static final String EMERGENCY_CREATED_ROUTING_KEY = "emergency.created";
+    public static final String EMERGENCY_CREATED_QUEUE = "rideci.emergency.created.queue";
+
+    @Bean
+    public TopicExchange emergencyExchange() {
+        return new TopicExchange(EMERGENCY_EXCHANGE, true, false);
+    }
+
+    @Bean
+    public Queue emergencyCreatedQueue() {
+        return new Queue(EMERGENCY_CREATED_QUEUE, true);
+    }
+
+    @Bean
+    public Binding emergencyCreatedBinding() {
+        return BindingBuilder
+                .bind(emergencyCreatedQueue())
+                .to(emergencyExchange())
+                .with(EMERGENCY_CREATED_ROUTING_KEY);
+    }
 
     @Bean
     public TopicExchange conversationExchange() {
