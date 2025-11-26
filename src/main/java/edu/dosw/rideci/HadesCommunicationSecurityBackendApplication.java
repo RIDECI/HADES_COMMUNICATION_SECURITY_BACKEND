@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 @EnableRabbit
+
 public class HadesCommunicationSecurityBackendApplication {
 
 	public static void main(String[] args) {
