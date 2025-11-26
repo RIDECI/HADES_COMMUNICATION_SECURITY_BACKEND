@@ -18,12 +18,6 @@ import edu.dosw.rideci.application.service.ConversationService;
 import edu.dosw.rideci.domain.entities.Message;
 import lombok.Data;
 
-/**
- * Clase WebSocket para comunicación en tiempo real en chats. Este componente
- * permite la comunicación bidireccional en tiempo real entre
- * conductores y pasajeros, facilitando la mensajería instantánea durante los
- * viajes.
- */
 @Component
 public class ChatWebSocketHandler extends TextWebSocketHandler {
 
@@ -46,6 +40,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         IncomingMessage incoming = mapper.readValue(textMsg.getPayload(), IncomingMessage.class);
 
         String conversationId = incoming.getConversationId();
+
         activeSessions.putIfAbsent(conversationId, new ArrayList<>());
         if (!activeSessions.get(conversationId).contains(session)) {
             activeSessions.get(conversationId).add(session);
@@ -54,16 +49,12 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         Message message = new Message(
                 conversationId,
                 incoming.getSenderId(),
-                incoming.getContent());
+                incoming.getContent()
+        );
 
         conversationService.sendMessage(conversationId, message);
 
-        MessageResponse savedMsg = conversationService.getMessages(conversationId)
-                .stream()
-                .filter(m -> m.getSenderId().equals(message.getSenderId())
-                        && m.getContent().equals(message.getContent()))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Error al enviar mensaje"));
+        MessageResponse savedMsg = conversationService.toMessageResponse(message);
 
         String json = mapper.writeValueAsString(savedMsg);
 

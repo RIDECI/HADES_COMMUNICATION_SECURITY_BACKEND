@@ -109,6 +109,7 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
                 .toList();
     }
 
+    
     public ConversationResponse getConversation(String conversationId) {
         return convRepo.findById(conversationId)
                 .map(mapper::toConversationResponse)

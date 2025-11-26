@@ -38,6 +38,11 @@ public class ConversationController {
         return ResponseEntity.ok(resp);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ConversationResponse> getConversation(@PathVariable String id) {
+        return ResponseEntity.ok(service.getConversation(id));
+    }
+    
     @GetMapping("/{id}/messages")
     public ResponseEntity<List<MessageResponse>> messages(@PathVariable String id) {
         return ResponseEntity.ok(service.getMessages(id));
