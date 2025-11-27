@@ -18,4 +18,6 @@ public class CreateConversationCommand {
     private Status travelStatus;
 
     private Long tripId;
+
+    private Long organizerId;
 }

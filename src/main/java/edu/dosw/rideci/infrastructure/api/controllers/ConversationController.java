@@ -44,7 +44,7 @@ public class ConversationController {
     }
     
     @GetMapping("/{id}/messages")
-    public ResponseEntity<List<MessageResponse>> messages(@PathVariable String id) {
+    public ResponseEntity<List<MessageResponse>> getMessages(@PathVariable String id) {
         return ResponseEntity.ok(service.getMessages(id));
     }
 

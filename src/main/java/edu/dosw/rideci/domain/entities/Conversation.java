@@ -19,6 +19,7 @@ public class Conversation {
     @Id
     private String id = UUID.randomUUID().toString();
     private Long tripId;
+    private Long organizerId;
     private TravelType type;
     private Status travelStatus;
     private boolean active = false;
