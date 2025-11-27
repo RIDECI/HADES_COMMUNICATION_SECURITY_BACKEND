@@ -12,6 +12,7 @@ import edu.dosw.rideci.application.events.command.CreateConversationCommand;
 import edu.dosw.rideci.application.service.ConversationService;
 import edu.dosw.rideci.domain.entities.Message;
 
+
 @RestController
 @RequestMapping("/conversations")
 public class ConversationController {
