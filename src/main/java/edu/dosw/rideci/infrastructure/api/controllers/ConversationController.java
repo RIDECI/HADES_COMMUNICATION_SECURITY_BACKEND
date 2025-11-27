@@ -39,10 +39,16 @@ public class ConversationController {
         return ResponseEntity.ok(resp);
     }
 
+    @GetMapping
+    public ResponseEntity<List<ConversationResponse>> getAll() {
+        return ResponseEntity.ok(service.getAllConversations());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ConversationResponse> getConversation(@PathVariable String id) {
         return ResponseEntity.ok(service.getConversation(id));
     }
+
     
     @GetMapping("/{id}/messages")
     public ResponseEntity<List<MessageResponse>> getMessages(@PathVariable String id) {
