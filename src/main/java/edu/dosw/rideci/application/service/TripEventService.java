@@ -1,5 +1,7 @@
 package edu.dosw.rideci.application.service;
 
+import java.util.ArrayList;
+
 import org.springframework.stereotype.Service;
 
 import edu.dosw.rideci.application.events.TravelCreatedEvent;
@@ -21,12 +23,36 @@ public class TripEventService {
         System.out.println("🔧 Procesando TripCreatedEvent...");
         System.out.println("🆔 Trip ID: " + event.getTravelId());
         System.out.println("🚗 Driver: " + event.getDriverId());
+        System.out.println("👤 Organizer: " + event.getOrganizerId());
+        System.out.println("📦 TravelType: " + event.getTravelType());
 
-        var participantIds = event.getPassengersId();
+        var participantIds = new ArrayList<Long>();
+
+        switch (event.getTravelType()) {
+
+            case TRIP:
+                if (event.getDriverId() != null) {
+                    participantIds.add(event.getDriverId());
+                }
+                if (event.getPassengersId() != null) {
+                    participantIds.addAll(event.getPassengersId());
+                }
+                break;
+
+            case GROUP:
+                if (event.getOrganizerId() != null) {
+                    participantIds.add(event.getOrganizerId());
+                }
+                if (event.getPassengersId() != null) {
+                    participantIds.addAll(event.getPassengersId());
+                }
+                break;
+        }
 
         CreateConversationCommand command = CreateConversationCommand.builder()
                 .tripId(event.getTravelId())
                 .participants(participantIds)
+                .organizerId(event.getOrganizerId())
                 .chatType(event.getTravelType())
                 .travelStatus(event.getState())
                 .build();

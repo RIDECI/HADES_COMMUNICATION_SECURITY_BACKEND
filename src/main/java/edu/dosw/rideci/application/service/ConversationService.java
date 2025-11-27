@@ -41,6 +41,9 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
     private final MessageRepositoryPort msgRepo;
     private final ConversationMapper mapper;
     private final EventPublisher eventPublisher;
+    private final BadWordsFilter badWordsFilter;
+
+    private static final int MAX_MESSAGE_LENGTH = 250;
 
     @Override
     @Transactional
@@ -68,7 +71,6 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
         eventPublisher.publish(
                 event,
                 RabbitMQConfig.CONVERSATION_EXCHANGE,
-        
                 RabbitMQConfig.CONVERSATION_CREATED_ROUTING_KEY);
 
         return conv.getId();
@@ -77,8 +79,24 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
     @Override
     @Transactional
     public void sendMessage(String conversationId, Message message) {
-        if (!convRepo.existsById(conversationId)) {
-            throw new ConversationException("Conversation no encontrada");
+
+        Conversation conv = convRepo.findById(conversationId)
+                .orElseThrow(() -> new ConversationException("Conversation no encontrada"));
+
+        if (!conv.isActive()) {
+            throw new ConversationException("No se pueden enviar mensajes. El viaje no está activo.");
+        }
+
+        if (message.getContent() == null || message.getContent().isBlank()) {
+            throw new ConversationException("El mensaje no puede estar vacío.");
+        }
+
+        if (message.getContent().length() > MAX_MESSAGE_LENGTH) {
+            throw new ConversationException("El mensaje supera el límite de " + MAX_MESSAGE_LENGTH + " caracteres.");
+        }
+
+        if (badWordsFilter.containsBadWords(message.getContent())) {
+            throw new ConversationException("El mensaje contiene lenguaje no permitido, por favor no seas grosero.");
         }
 
         msgRepo.save(message);
@@ -99,6 +117,7 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
                 RabbitMQConfig.CHAT_ROUTING_KEY);
     }
 
+
     public List<MessageResponse> getMessages(String conversationId) {
         if (!convRepo.existsById(conversationId)) {
             throw new ConversationException("Conversation no encontrada");
@@ -109,7 +128,6 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
                 .toList();
     }
 
-    
     public ConversationResponse getConversation(String conversationId) {
         return convRepo.findById(conversationId)
                 .map(mapper::toConversationResponse)
@@ -146,5 +164,4 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
     public MessageResponse toMessageResponse(Message message) {
         return mapper.toMessageResponse(message);
     }
-
 }

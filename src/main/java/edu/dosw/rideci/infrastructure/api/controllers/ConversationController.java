@@ -12,6 +12,7 @@ import edu.dosw.rideci.application.events.command.CreateConversationCommand;
 import edu.dosw.rideci.application.service.ConversationService;
 import edu.dosw.rideci.domain.entities.Message;
 
+
 @RestController
 @RequestMapping("/conversations")
 public class ConversationController {
@@ -44,7 +45,7 @@ public class ConversationController {
     }
     
     @GetMapping("/{id}/messages")
-    public ResponseEntity<List<MessageResponse>> messages(@PathVariable String id) {
+    public ResponseEntity<List<MessageResponse>> getMessages(@PathVariable String id) {
         return ResponseEntity.ok(service.getMessages(id));
     }
 
