@@ -164,4 +164,11 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
     public MessageResponse toMessageResponse(Message message) {
         return mapper.toMessageResponse(message);
     }
+
+    public List<ConversationResponse> getAllConversations() {
+        return convRepo.findAll().stream()
+                .map(mapper::toConversationResponse)
+                .toList();
+    }
+
 }
