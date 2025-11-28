@@ -194,7 +194,7 @@ class ConversationServiceTest {
 
     @Test
     void testShouldUpdateStatus() {
-        when(convRepo.findByTripId(10L)).thenReturn(Optional.of(conversation));
+        when(convRepo.findByTravelId(10L)).thenReturn(Optional.of(conversation));
 
         service.updateStatus(10L, Status.ACTIVE);
 
@@ -205,7 +205,7 @@ class ConversationServiceTest {
 
     @Test
     void testShouldUpdateStatusInCourse() {
-        when(convRepo.findByTripId(10L)).thenReturn(Optional.of(conversation));
+        when(convRepo.findByTravelId(10L)).thenReturn(Optional.of(conversation));
 
         service.updateStatus(10L, Status.IN_COURSE);
 
@@ -216,7 +216,7 @@ class ConversationServiceTest {
 
     @Test
     void testShouldUpdateStatusAndPublishesEvent() {
-        when(convRepo.findByTripId(10L)).thenReturn(Optional.of(conversation));
+        when(convRepo.findByTravelId(10L)).thenReturn(Optional.of(conversation));
 
         service.updateStatus(10L, Status.COMPLETED);
 
@@ -232,7 +232,7 @@ class ConversationServiceTest {
 
     @Test
     void testShouldUpdateStatusWithoutEvent() {
-        when(convRepo.findByTripId(10L)).thenReturn(Optional.of(conversation));
+        when(convRepo.findByTravelId(10L)).thenReturn(Optional.of(conversation));
 
         service.updateStatus(10L, Status.CANCELLED);
 
@@ -243,7 +243,7 @@ class ConversationServiceTest {
 
     @Test
     void testShouldUpdateStatusNoConversation_throwsException() {
-        when(convRepo.findByTripId(999L)).thenReturn(Optional.empty());
+        when(convRepo.findByTravelId(999L)).thenReturn(Optional.empty());
         assertThrows(ConversationException.class, () -> service.updateStatus(999L, Status.ACTIVE));
     }
 

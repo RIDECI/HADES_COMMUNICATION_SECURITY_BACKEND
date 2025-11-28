@@ -32,8 +32,8 @@ public class ConversationRepositoryAdapter implements ConversationRepositoryPort
     }
 
     @Override
-    public Optional<Conversation> findByTripId(Long tripId) {
-        return conversationRepository.findByTripId(tripId);
+    public Optional<Conversation> findByTravelId(Long tripId) {
+        return conversationRepository.findByTravelId(tripId);
     }
 
     @Override

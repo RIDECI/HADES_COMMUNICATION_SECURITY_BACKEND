@@ -140,7 +140,7 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
     @Override
     @Transactional
     public void updateStatus(Long tripId, Status status) {
-        Conversation conv = convRepo.findByTripId(tripId)
+        Conversation conv = convRepo.findByTravelId(tripId)
                 .orElseThrow(() -> new ConversationException(
                         "No existe conversación para el tripId: " + tripId));
 
