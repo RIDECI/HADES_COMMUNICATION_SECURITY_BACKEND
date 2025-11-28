@@ -9,6 +9,8 @@ import lombok.Data;
 public class ConversationResponse {
     private String id;
     private Long tripId;
+    private Long organizerId;
+    private Long driveId;
     private TravelType type;
     private boolean active;
     private List<Long> participants;

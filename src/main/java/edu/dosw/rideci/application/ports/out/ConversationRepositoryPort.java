@@ -1,5 +1,6 @@
 package edu.dosw.rideci.application.ports.out;
 
+import java.util.List;
 import java.util.Optional;
 
 import edu.dosw.rideci.domain.entities.Conversation;
@@ -12,4 +13,6 @@ public interface ConversationRepositoryPort {
     Optional<Conversation> findById(String id);
 
     Optional<Conversation> findByTripId(Long tripId);
+    
+    List<Conversation> findAll();
 }

@@ -1,5 +1,6 @@
 package edu.dosw.rideci.infrastructure.persistance;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
@@ -33,6 +34,11 @@ public class ConversationRepositoryAdapter implements ConversationRepositoryPort
     @Override
     public Optional<Conversation> findByTripId(Long tripId) {
         return conversationRepository.findByTripId(tripId);
+    }
+
+    @Override
+    public List<Conversation> findAll() {
+        return conversationRepository.findAll();
     }
 
 }

@@ -33,4 +33,3 @@ public class TravelCreatedEvent {
     private String conditions;
 }
 
-
