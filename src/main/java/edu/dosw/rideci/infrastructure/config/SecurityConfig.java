@@ -1,7 +1,6 @@
 package edu.dosw.rideci.infrastructure.config;
 
 import java.util.List;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -17,41 +16,39 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) 
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/ws/**").permitAll()
+                .requestMatchers("/conversations/**").permitAll()
                 .anyRequest().permitAll()
             )
             .httpBasic(Customizer.withDefaults())
             .formLogin(form -> form.disable());
-
+        
         return http.build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-
+        
         config.setAllowedOrigins(List.of(
             "http://localhost:5173",
-            "http://localhost:5174",
+            "http://localhost:5174", 
             "https://hadescommunicationsecuritybackend-development.up.railway.app"
         ));
-
+        
         config.setAllowedMethods(List.of(
             "GET", "POST", "PUT", "DELETE", "OPTIONS"
         ));
-
+        
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("*"));
         config.setAllowCredentials(true);
-
+        
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
-
+        
         return source;
     }
 }
-
-
-
