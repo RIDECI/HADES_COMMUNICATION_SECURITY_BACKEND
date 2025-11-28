@@ -26,9 +26,12 @@ public class ConversationController {
     public ResponseEntity<ConversationResponse> create(@RequestBody CreateConversationRequest req) {
 
         CreateConversationCommand command = CreateConversationCommand.builder()
-                .participants(req.getParticipants())
-                .chatType(req.getType())
                 .tripId(req.getTripId())
+                .chatType(req.getType())
+                .participants(req.getParticipants())
+                .driverId(req.getDriverId())
+                .organizerId(req.getOrganizerId())
+                .travelStatus(req.getTravelStatus())
                 .build();
 
         String conversationId = service.createChat(command);
@@ -37,6 +40,7 @@ public class ConversationController {
 
         return ResponseEntity.ok(resp);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<ConversationResponse> getConversation(@PathVariable String id) {

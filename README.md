@@ -1,511 +1,270 @@
+# 📌 Hades - Communication and Security
+This module enables real-time communication between passengers and drivers, incident reporting, emergency handling, deviation alerts, and secure trip monitoring. It strengthens trust and safety across the RideCI ecosystem.
 
-# HADES_COMUNICATION_SECURITY_BACKEND
+## 👤 Developers
+- Juan Pablo Caballero
+- Karol Estupiñan
+- Juan Andres Suarez 
+- Nicolas Andres 
+- Julian Santiago Ramirez
 
-## Desarrolladores
-
-* Karol Estefany Estupiñan Viancha
-* Juan Andrés Suárez Fonseca
-* Juan Pablo Caballero Castellanos
-* Julián Santiago Ramírez Urueña
-* Nicolás Andrés Duarte Rodríguez
-
+## 📑 Content Table
+1. [Project Architecture](#-project-architecture)
+    - [Hexagonal Structure](#-clean---hexagonal-structure)
+2. [API Documentation](#-api-endpoints)
+    - [Endpoints](#-api-endpoints)
+3. [Input & Output Data](#input-and-output-data)
+4. [Microservices Integration](#-connections-with-other-microservices)
+5. [Technologies](#technologies)
+6. [Branch Strategy](#-branches-strategy--structure)
+7. [System Architecture & Design](#-system-architecture--design)
+8. [Getting Started](#-getting-started)
+9. [Testing](#-testing)
 ---
+## 🏢 Project Architecture
+The hades - Communication and Security have an unacoplated hexagonal - clean architecture where it looks to isolate the business logic with the other part of the app dividing it into multiple components:
+* **🧠 Domain (Core)**: Contains the business logic and principal rules.
+* **🎯 Ports (Interfaces)**: Are interfaces that define the actions that the domain can do.
+* **🔌 Adapters (Infrastructure)**: Are the implementations of the ports that connect the domain with the specific technologies.
+The use of this architecture has the following benefits:
+* ✔️ **Separation of Concerns:** Distinct boundaries between logic and infrastructure.
+* ✔️ **Maintainability:** Easier to update or replace specific components.
+* ✔️ **Scalability:** Components can evolve independently.
+* ✔️ **Testability:** The domain can be tested in isolation without a database or server.
+## 📂 Clean - Hexagonal Structure
+```
+:📂 nemesis_travel_management_backend
+┣ :📂 src/
+┃ ┣ :📂 main/
+┃ ┃ ┣ :📂 java/
+┃ ┃ ┃ ┗ :📂 edu/dosw/rideci/
+┃ ┃ ┃   ┣ 📄 NemesisTravelManagementBackendApplication.java
+┃ ┃ ┃   ┣ :📂 domain/
+┃ ┃ ┃   ┃ ┗ :📂 model/            # 🧠 Domain models
+┃ ┃ ┃   ┣ :📂 application/
+┃ ┃ ┃   ┃ ┣ :📂 ports/
+┃ ┃ ┃   ┃ ┃ ┣ :📂 input/          # 🎯 Input ports (Exposed use cases)
+┃ ┃ ┃   ┃ ┃ ┗ :📂 output/         # 🔌 Output ports (external gateways)
+┃ ┃ ┃   ┃ ┗ :📂 usecases/         # ⚙️ Use case implementations
+┃ ┃ ┃   ┣ :📂 infrastructure/
+┃ ┃ ┃   ┃ ┗ :📂 adapters/
+┃ ┃ ┃   ┃   ┣ :📂 input/
+┃ ┃ ┃   ┃   ┃ ┗ :📂 controller/   # 🌎 Input adapters (REST controllers)
+┃ ┃ ┃   ┃   ┗ :📂 output/
+┃ ┃ ┃   ┃     ┗ :📂 persistence/  # 🗄️ Output adapters (persistance)
+┃ ┃ ┗ :📂 resources/
+┃ ┃   ┗ 📄 application.properties
+┣ :📂 test/
+┃ ┣ :📂 java/
+┃ ┃ ┗ :📂 edu/dosw/rideci/NEMESIS_TRAVEL_MANAGEMENT_BACKEND/
+┃ ┃   ┗ 📄 NemesisTravelManagementBackendApplicationTests.java
+┣ :📂 docs/
+┃ ┣ diagramaClases.jpg
+┃ ┣ diagramaDatos.jpg
+┃ ┗ diagramaDespliegue.png
+┣ 📄 pom.xml
+┣ 📄 mvnw / mvnw.cmd
+┗ 📄 README.md
+```
+# 📡 API Endpoints
+For detailed documentation refer to our Swagger UI (Running locally at http://localhost:8080/swagger-ui.html).
+## Data input & output – Conversations API
 
-## Tabla de Contenidos
+| Method | URI | Description | Request Body / Params |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/conversations` | Creates a new conversation (chat) between participants. | `{ participants: string[], type: string, tripId: string }` |
+| `GET` | `/conversations` | Retrieves all existing conversations. | — |
+| `GET` | `/conversations/{id}` | Retrieves details of a specific conversation. | `id` (Path Variable) |
+| `GET` | `/conversations/{id}/messages` | Retrieves all messages for a given conversation. | `id` (Path Variable) |
+| `POST` | `/conversations/{id}/messages` | Sends a new message to a conversation. | `{ senderId: string, content: string }` |
 
-* [ Estrategia de Versionamiento y Branching](#-estrategia-de-versionamiento-y-branching)
+## Data input & output – Emergency Alerts API
 
-  * [ Estrategia de Ramas (Git Flow)](#-estrategia-de-ramas-git-flow)
-  * [ Convenciones de Nomenclatura](#-convenciones-de-nomenclatura)
-  * [ Convenciones de Commits](#-convenciones-de-commits)
-* [ Arquitectura del Proyecto](#-arquitectura-del-proyecto)
+| Method | URI | Description | Request Body / Params |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/emergencies/activate` | Activates an emergency alert for a user during a trip. | `{ userId: number, tripId: number, currentLocation: Location }` |
+| `GET` | `/emergencies/{id}` | Retrieves an emergency alert by its unique identifier. | `id` (Path Variable) |
+| `GET` | `/emergencies` | Retrieves all existing emergency alerts. | — |
 
-  * [ Estructura de Capas](#️-estructura-de-capas)
-* [ Tecnologías Utilizadas](#️-tecnologías-utilizadas)
-* [ Arquitectura Limpia - Organización de Capas](#️-arquitectura-limpia---organización-de-capas)
-* [Diagramas del Módulo](#diagramas-del-módulo)
+### 📟 HTTP Status Codes
+Common status codes returned by the API.
+| Code | Status | Description |
+| :--- | :--- | :--- |
+| `200` | **OK** | Request processed successfully. |
+| `201` | **Created** | Resource (Route/Tracking) created successfully. |
+| `400` | **Bad Request** | Invalid coordinates or missing parameters. |
+| `401` | **Unauthorized** | Missing or invalid JWT token. |
+| `404` | **Not Found** | Route or Trip ID does not exist. |
+| `500` | **Internal Server Error** | Unexpected error (e.g., Google Maps API failure).
 
+# Input and Output Data
+Data information per functionability
+# 🔗 Connections with other Microservices
+This module does not work alone. It interacts with the RideCi Ecosystem via REST APIs and Message Brokers:
+1. Travel Management Module: Receives information about the travel when the travel is completed or only created.
 
+# Technologies
+The following technologies were used to build and deploy this module:
+### Backend & Core
+![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white)
+![Maven](https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apache-maven&logoColor=white)
+### Database
+![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white)
+### DevOps & Infrastructure
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=for-the-badge&logo=kubernetes&logoColor=white)
+![Railway](https://img.shields.io/badge/Railway-131415?style=for-the-badge&logo=railway&logoColor=white)
+![Vercel](https://img.shields.io/badge/vercel-%23000000.svg?style=for-the-badge&logo=vercel&logoColor=white)
+### CI/CD & Quality Assurance
+![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white)
+![SonarQube](https://img.shields.io/badge/SonarQube-4E9BCD?style=for-the-badge&logo=sonarqube&logoColor=white)
+![JaCoCo](https://img.shields.io/badge/JaCoCo-Coverage-green?style=for-the-badge)
+### Documentation & Testing
+![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)
+![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
+### Design
+![Figma](https://img.shields.io/badge/figma-%23F24E1E.svg?style=for-the-badge&logo=figma&logoColor=white)
+### Comunication & Project Management
+![Jira](https://img.shields.io/badge/jira-%230A0FFF.svg?style=for-the-badge&logo=jira&logoColor=white)
+![Slack](https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=slack&logoColor=white)
 ---
-
-##  Estrategia de Versionamiento y Branching
-
-Se implementa una estrategia de versionamiento basada en **GitFlow**, garantizando un flujo de desarrollo **colaborativo, trazable y controlado**.
-
-###  Beneficios:
-
-- Permite trabajo paralelo sin conflictos
-- Mantiene versiones estables y controladas
-- Facilita correcciones urgentes (*hotfixes*)
-- Proporciona un historial limpio y entendible
-
----
-
-##  Estrategia de Ramas (Git Flow)
-
-| **Rama**                | **Propósito**                            | **Recibe de**           | **Envía a**        | **Notas**                      |
+# 🌿 Branches Strategy & Structure
+This module follows a strict branching strategy based on Gitflow to ensure the ordered versioning,code quality and continous integration.
+| **Branch**                | **Purpose**                            | **Receive of**           | **Sent to**        | **Notes**                      |
 | ----------------------- | ---------------------------------------- | ----------------------- | ------------------ | ------------------------------ |
-| `main`                  | Código estable para PREPROD o Producción | `release/*`, `hotfix/*` | Despliegue         | Protegida con PR y CI exitoso  |
-| `develop`               | Rama principal de desarrollo             | `feature/*`             | `release/*`        | Base para integración continua |
-| `feature/*`             | Nuevas funcionalidades o refactors       | `develop`               | `develop`          | Se eliminan tras el merge      |
-| `release/*`             | Preparación de versiones estables        | `develop`               | `main` y `develop` | Incluye pruebas finales        |
-| `bugfix/*` o `hotfix/*` | Corrección de errores críticos           | `main`                  | `main` y `develop` | Parches urgentes               |
+| `main`                  | 🏁 Stable code for preproduction or Production | `release/*`, `hotfix/*` | 🚀 Production      | 🔐 Protected with PR y successful CI   |
+| `develop`               | 🧪 Main developing branch             | `feature/*`             | `release/*`        | ↗️ Base to continous deployment |
+| `feature/*`             | ✨ New functions or refactors  to be implemented       | `develop`               | `develop`          | 🧹 Are deleted after merge to develop      |
+| `release/*`             | 📦 Release preparation & final polish.      | `develop`               | `main` y `develop` | 🧪  Includes final QA. No new features added here.     |
+| `bugfix/*` o `hotfix/*` | 🛠️ Critical fixes for production         | `main`                  | `main` y `develop` | ⚡ Urgent patches. Highest priority     
+        |
+# 🏷️ Naming Conventions
+## 🌿 Branch Naming
+### ✨ Feature Branches
+Used for new features or non-critical improvements.
+**Format:**
+`feature/[shortDescription]`
+**Examples:**
+- `feature/authenticationModule`
+- `feature/securityService`
+
+**Rules:**
+* 🧩 **Case:** strictly *camelCase* (lowercase with hyphens).
+* ✍️ **Descriptive:** Short and meaningful description.
 
 ---
-
-##  Convenciones de Nomenclatura
-
-### Feature Branches
-
-```
-feature/[nombre-funcionalidad]-hades_[codigo-jira]
-```
-
-**Ejemplos:**
-
-```
-- feature/authentication-module-hades_23
-- feature/security-service-hades_41
-```
-
-**Reglas:**
-
-*  Formato: *kebab-case*
-*  Incluir código Jira
-*  Descripción breve y clara
-*  Longitud máxima: 50 caracteres
-
+### 📦 Release Branches
+Used for preparing a new production release. Follows [Semantic Versioning](https://semver.org/).
+**Format:**
+`release/v[major].[minor].[patch]`
+**Examples:**
+- `release/v1.0.0`
+- `release/v1.1.0-beta`
 ---
 
-### Release Branches
-
-```
-release/[version]
-```
-
-**Ejemplos:**
-
-```
-- release/1.0.0
-- release/1.1.0-beta
-```
-
+### 🚑 Hotfix Branches
+Used for urgent fixes in the production environment.
+**Format:**
+`hotfix/[shortDescription]`
+**Examples:**
+- `hotfix/fixTokenExpiration`
+- `hotfix/securityPatch`
 ---
 
-### Hotfix Branches
+## 📝 Commit Message Guidelines
+We follow the **[Conventional Commits](https://www.conventionalcommits.org/)** specification.
 
+### 🧱 Standard Format
+```text
+<type>(<scope>): <short description>
 ```
-hotfix/[descripcion-breve-del-fix]
+# 📐 System Architecture & Design
+This section provides a visual representation of the module's architecture ilustrating the base diagrams to show the application structure and components flow.
+
+### 🧩 Context Diagram
+---
+Text
+![Context Diagram](./docs/diagramaContexto.png)
+
+### 🧩 Specific Components Diagram
+---
+This diagram visualizes the dependencies between classes for developing the module's logic. It includes the following components:
+* Controllers:
+    * Geolocalization Controller: This controller receives and manages all requests related to geolocation management, routes, and tracking, including references handled via DTOs.
+When applying a hexagonal architecture, before developing the use cases, we need adapter components:
+* Adapter:
+    * Geolocalization Adapter: Contracts (interfaces) are defined based on the input received from the controllers.
+    * Mapper Adapter: This adapter transforms data types from one object to another for use in the respective use cases.
+* Use Cases:
+    * Get Emergency Contacts Use Case: Implementation to allow passengers to share their location with emergency contacts.
+    * Get Geolocation Information Use Case: Obtain position information at regular intervals.
+    * Generate Automatic Alerts Use Case: Generate automatic alerts at the beginning and end of the trip.
+* Ports: The following interfaces were defined as the data we will receive from the outside:
+    * Port Notifications
+    * Port Profiles
+    * Port Travel Information
+![Specific Components Diagram](./docs/diagramaComponentes.png)
+
+### 🧩 Use Cases Diagram
+---
+This diagram presents the main functionalities defined by each actor. This facilitates a better understanding when implementing the module's multiple functions, as well as identifying and separating each actor's roles when using the application.
+![Use Cases Diagram](./docs/diagramaCasosUso.png)
+
+### 🧩 Class Diagram
+---
+Based on the Specific Components diagram, we created the class diagram, where we defined an Observer design pattern that will notify all passengers already registered on the trip, allowing them to view the current location at certain intervals, and all the information about the estimated route, the distance traveled, and so on.
+![Class Diagram](./docs/diagramaClases.png)
+
+### 🧩 Data Base Diagram
+---
+This diagram represents how the data is stored, where we will find the multiple documents, and the data that will be stored in an embedded or referenced manner.
+![Data Base Diagram](./docs/diagramaDeBasesDeDatos.png)
+
+### 🧩 Sequence Diagrams
+---
+This diagram presents the complete CRUD workflow for trip geolocation. It includes sequence diagrams for initiating, updating, and ending a trip.
+The diagram also details the required validations and potential errors that may occur in each functionality. Finally, it illustrates the components involved in each process, including the Google Maps API and the relationship between them.
+![Sequence Diagrams](./docs/diagramaSecuenciaGeolocalización.png)
+
+### 🧩 Specific Deploy Diagram
+---
+This diagram illustrates the cloud deployment architecture and workflow of the geolocation, routes and tracking module.
+![Specific Deploy Diagram](./docs/diagramaDespliegueEspecifico.png)
+
+# 🚀 Getting Started
+This section guides you through setting ip the project locally. This project requires **Java 17**. If you have a different version, you can change it or we recommend using **Docker** to ensure compatibility before compile.
+
+### Clone & open repository
+``` bash
+git clone https://github.com/RIDECI/HADES_COMMUNICATION_SECURITY_BACKEND
 ```
-
-**Ejemplos:**
-
+``` bash
+cd HADES_COMMUNICATION_SECURITY_BACKEND
 ```
-- hotfix/fix-token-expiration
-- hotfix/security-patch
+You can open it on your favorite IDE
+
+### Dockerize the project
+Dockerize before compile the project avoid configuration issues and ensure environment consistency.
+``` bash
+docker compose up -d
 ```
-
----
-
-## Convenciones de Commits
-
-### Formato Estándar
-
+### Install dependencies & compile project
+Download dependencies and compile the source code.
+``` bash
+mvn clean install
 ```
-[codigo-jira] [tipo]: [descripción breve de la acción]
+``` bash
+mvn clean compile
 ```
-
-**Ejemplos:**
-
+### To run the project
+Start the Spring Boot server
+``` bash
+mvn spring-boot:run
 ```
-45-feat: agregar validación de token JWT
-46-fix: corregir error en autenticación por roles
-```
+# 🧪 Testing
+Testing is a essential part of the project functionability, this part will show the code coverage and code quality analazing with tools like JaCoCo and SonarQube.
 
+### 📊 Code Coverage (JaCoCo) and 🔎 Static Analysis (SonarQube)
 ---
-
-### Tipos de Commit
-
-| **Tipo**   | **Descripción**                      | **Ejemplo**                                     |
-| ----------- | ------------------------------------ | ----------------------------------------------- |
-| `feat`      | Nueva funcionalidad                  | `22-feat: implementar autenticación con JWT`    |
-| `fix`       | Corrección de errores                | `24-fix: solucionar error en endpoint de login` |
-| `docs`      | Cambios en documentación             | `25-docs: actualizar README con nuevas rutas`   |
-| `refactor`  | Refactorización sin cambio funcional | `27-refactor: optimizar servicio de seguridad`  |
-| `test`      | Pruebas unitarias o de integración   | `29-test: agregar tests para AuthService`       |
-| `chore`     | Mantenimiento o configuración        | `30-chore: actualizar dependencias de Maven`    |
-
-
-**Reglas:**
-
-* Un commit = una acción completa
-* Máximo **72 caracteres** por línea
-* Usar modo imperativo (“agregar”, “corregir”, etc.)
-* Descripción clara de qué y dónde
-* Commits pequeños y frecuentes
-
----
-
-## Arquitectura del Proyecto
-
-El backend de **HADES_COMUNICATION_SECURITY** sigue una **arquitectura limpia y desacoplada**, priorizando:
-
-* Separación de responsabilidades
-* Mantenibilidad
-* Escalabilidad
-* Facilidad de pruebas
-
----
-
-## Estructura de Capas
-
-```
-📂 hades_backend
- ┣ 📂 domain/
- ┃ ┣ 📄 Entities/
- ┃ ┣ 📄 ValueObjects/
- ┃ ┣ 📄 Enums/
- ┃ ┣ 📄 Services/
- ┃ ┗ 📄 Events/
- ┣ 📂 application/
- ┃ ┣ 📄 UseCases/
- ┃ ┣ 📄 DTOs/
- ┃ ┣ 📄 Mappers/
- ┃ ┗ 📄 Exceptions/
- ┣ 📂 infrastructure/
- ┃ ┣ 📄 Controllers/
- ┃ ┣ 📄 Database/
- ┃ ┣ 📄 Repositories/
- ┃ ┣ 📄 Config/
- ┃ ┗ 📄 Security/
- ┗ 📄 pom.xml
-```
-
----
-
-## Tecnologías Utilizadas
-
-| **Categoría**              | **Tecnologías**                           |
-| -------------------------- | ----------------------------------------- |
-| **Backend**                | Java 17, Spring Boot, Maven               |
-| **Base de Datos**          | MongoDB, PostgreSQL                       |
-| **Infraestructura**        | Docker, Kubernetes (K8s), Railway, Vercel |
-| **Seguridad**              | JWT, Spring Security                      |
-| **Integración Continua**   | GitHub Actions, Jacoco, SonarQube         |
-| **Documentación y Diseño** | Swagger UI, Figma                         |
-| **Comunicación y Gestión** | Slack, Jira                               |
-| **Testing**                | Postman                                   |
-
----
-
-## Arquitectura Limpia - Organización de Capas
-
-### DOMAIN (Dominio)
-
-Representa el **núcleo del negocio**, define **qué hace el sistema, no cómo lo hace**.
-Incluye entidades, objetos de valor, enumeraciones, interfaces de repositorio y servicios de negocio.
-
-### APPLICATION (Aplicación)
-
-Orquesta la lógica del negocio a través de **casos de uso**, **DTOs**, **mappers** y **excepciones personalizadas**.
-
-### INFRASTRUCTURE (Infraestructura)
-
-Implementa los **detalles técnicos**: controladores REST, persistencia, configuración, seguridad y conexión con servicios externos.
-
----
-
-### Diagramas del Módulo
-
-### Diagrama de Contexto
-
-<img width="512" height="299" alt="image" src="https://github.com/user-attachments/assets/1389eca0-7874-4f40-916d-fc48de336a03" />
-
-
-### Diagrama de Despliegue
-
-![alt text](docs/images/DiagramaDespliegue.png)
-
-El diagrama representa la arquitectura de despliegue del Módulo de Comunicación y Seguridad del sistema RIDECI, mostrando cómo interactúan los componentes de software, las herramientas CI/CD, la base de datos, las APIs externas y el cliente final.
-
-CLIENTE: 
-
-una aplicación web desarrollada en React + TypeScript, utilizada por conductores, pasajeros y administradores.
-
-Se despliega como un artefacto web estático.
-
-Se comunica con el backend mediante HTTPS y WebSockets (para chat en tiempo real y alertas).
-
-MÓDULO COMUNICACIÓN Y SEGURIDAD
-
-Este es el microservicio principal del módulo y gestiona:
-
-- Chat en tiempo real
-
-- Alertas de emergencia
-
-- Alertas por desviación de ruta
-
-- Historial de incidentes
-
-- Reportes y calificaciones
-
-El módulo se despliega en Railway y contiene los artefactos del backend del proyecto. Funcionalidades claves:
-
-- Enviar y recibir mensajes mediante WebSocket.
-
-- Activar alertas y enviar notificaciones.
-
-- Integrarse con la API de geolocalización.
-
-- Consultar incidentes y calificaciones desde la base de datos.
-
-Conexiones:
-
-- Se conecta con MongoDB mediante un driver de base de datos.
-
-- Envía notificaciones a un servicio externo.
-
-- Publica métricas y resultados de análisis a herramientas CI/CD.
-
-NOTIFICATIONS (Servicio externo)
-
-Este nodo representa el sistema externo encargado de:
-
-- Enviar correos.
-
-- Notificar a contactos de emergencia
-
-- Avisar a seguridad institucional.
-
-El backend envía hacia este sistema las alertas cuando ocurre un evento crítico.
-
-CI/CD TOOLS
-
-🔧 JACOCO
-
-- Genera reportes de cobertura del código Java.
-
-- Se ejecuta durante el pipeline.
-
-🔧 SONARQUBE
-
-Realiza análisis estático de calidad y seguridad del código.
-
-- Detecta code smells, bugs y vulnerabilidades.
-
-🔧 GITHUB ACTIONS
-
-- Orquesta el pipeline de CI/CD.
-
-MONGO DB
-
-La base de datos del módulo está desplegada en un contenedor Docker con MongoDB, y almacena:
-
-- Usuarios
-
-- Historial del chat
-
-- Reportes e incidentes
-
-- Calificaciones
-
-- Alertas
-
-El backend se comunica con este contenedor mediante el driver de MongoDB.
-
-GEOLOCALIZACIÓN (Maps API)
-
-Este servicio externo provee a nuestro módulo:
-
-- Coordenadas de ubicación en tiempo real
-
-- Ruta planificada vs. ruta actual
-
-- Detección de desviaciones
-
-El backend consume esta API para activar alertas automáticas de desviación.
----
-### Diagrama de Componentes Específico
-
-<img width="600" height="298" alt="image" src="https://github.com/user-attachments/assets/665a0c30-0801-4a8e-bcd7-61715479149b" />
-
-El diagrama de componentes del Módulo de Comunicación y Seguridad representa la estructura interna del microservicio encargado de gestionar la interacción entre usuarios, la seguridad preventiva durante los viajes y la administración de incidentes dentro de la plataforma RidECI. Cada bloque del diagrama cumple una función específica dentro del ecosistema, y en conjunto garantizan una operación confiable, monitoreada y orientada a la protección del usuario.
-**1. Casos de uso internos del microservicio**
-
-Estos componentes representan las funcionalidades centrales del módulo:
-Chat UseCase
- Gestiona la comunicación entre conductor y pasajeros antes y durante un viaje. Se encarga del envío, recepción y registro de mensajes, verificando siempre la identidad del usuario mediante el AuthAdapter.
-
-
-EmergencyAlert UseCase
- Permite activar el botón de emergencia. Cuando el usuario lo presiona, este caso de uso recopila la ubicación, genera una alerta y la envía al NotificationAdapter para informar al contacto de emergencia o a la unidad institucional de seguridad.
-
-
-Reputation UseCase
- Administra el sistema de calificaciones después de cada viaje. Recibe las evaluaciones y las envía a UserSecurity UseCase o a otros módulos encargados de guardar el historial reputacional del usuario.
-
-
-UserSecurity UseCase
- Se encarga del historial de reportes y conducta del usuario. Almacena comportamientos, advertencias e incidentes que puedan afectar la reputación o la seguridad en la plataforma.
-
-
-**2. Componentes especializados de seguridad**
-
-Son piezas internas enfocadas en la protección activa del usuario:
-RouteDeviationDetector
- Monitorea en tiempo real la ruta del viaje mediante el módulo externo de geolocalización. Si detecta una desviación significativa de la ruta esperada, genera un "Deviation Alert" que es enviado al EmergencyAlert UseCase o al NotificationAdapter según el caso.
-
-
-IncidentManager
- Centraliza los reportes de incidentes generados por los usuarios o automáticamente por el sistema (por ejemplo, desvíos de ruta). También es capaz de compartir esta información con el módulo administrativo para el seguimiento institucional.
-
-
-**3. Adaptadores del microservicio**
-
-Facilitan la comunicación del módulo con otros microservicios del sistema:
-AuthAdapter
- Valida la identidad de los usuarios antes de permitir chat, envío de alertas o reportes. Se conecta con el microservicio de User Management.
-
-
-NotificationAdapter
- Envía notificaciones push, mensajes SMS o correos según el tipo de alerta generada. Es clave para el botón de emergencia y para avisos por desviación de ruta.
-
-
-**4. Módulos externos conectados**
-
-Estos bloques representan microservicios o funcionalidades externas que interactúan con el módulo:
-User Management
- Proporciona información de los perfiles, roles y validaciones de usuarios.
-
-
-Travel Management
- Ofrece la información de los viajes activos, permitiendo detectar desviaciones, enviar mensajes de chat relacionados al viaje y reportar incidentes.
-
-
-Geolocalization Routes and Tracking
- Entrega la ubicación en tiempo real y la ruta planificada. Es indispensable para el RouteDeviationDetector.
-
-
-Alerts (Servicio externo de alertas generales)
- Se utiliza para registrar o enviar notificaciones generales o institucionales que no están directamente vinculadas al botón de emergencia.
-
-
-
-
----
-### Diagrama de casos de uso
-
-<img width="776" height="1551" alt="Casos de uso hades drawio (1)" src="https://github.com/user-attachments/assets/f66b1a18-25f5-45c8-b5ba-6c62ae7cd965" />
-
-El diagrama representa las funcionalidades principales del Módulo de comunicación y seguridad, mostrando la interacción entre los tres tipos de actores involucrados: Pasajero, Conductor y Administrador. Cada uno accede a diferentes casos de uso según su rol dentro de la plataforma.
-- **Pasajero y Conductor – Comunicación y Seguridad Operativa**
-  Tanto el pasajero como el conductor pueden:
-  Enviar y recibir mensajes, lo cual permite mantener coordinación antes y durante el viaje.
-  Activar el botón de emergencia, asegurando una respuesta inmediata ante una situación de riesgo.
-  Registrar reportes de comportamiento y calificar el viaje, contribuyendo al sistema de reputación.
-  Consultar el detalle de reportes, lo que les brinda transparencia sobre incidentes en los que han sido participantes o testigos.
-  Estas funcionalidades están enfocadas en mejorar la interacción, el acompañamiento seguro y la detección temprana de incidentes.
-- **Administrador – Supervisión y Gestión de Incidentes**
-  El administrador se encarga de supervisar la seguridad general del sistema mediante:
-  Consultar el historial de reportes, para revisar el comportamiento de los usuarios.
-  Atender y actualizar el estado de los reportes, gestionando los incidentes desde su recepción hasta su cierre.
-  Consultar el detalle de los reportes, lo que permite profundizar en cada caso antes de tomar decisiones.
-  Esto asegura la trazabilidad completa de alertas y reportes, fortaleciendo el control institucional y el seguimiento de situaciones críticas.
-- **Integración entre Roles**
-  El diagrama muestra cómo los casos de uso de seguridad (reportes, emergencias, calificaciones) están conectados tanto a los usuarios comunes como al administrador.
-  Esto refleja que:
-  - Los usuarios generan información de seguridad.
-  - El administrador procesa y gestiona esa información.
-  Esta relación crea un flujo continuo de supervisión y respuesta.
-
----
-
-### Diagrama de Clases
-
-El siguiente diagrama representa la arquitectura orientada a objetos del módulo de comunicación, chat, alertas y reportes de seguridad del sistema RIDECI. El modelo combina patrones de diseño como Observer, Strategy, Adapter, Factory Method y relaciones UML como composición, agregación y dependencias.
-
-![alt text](docs/images/DiagramaClases.png)
-
-1. Users
-
-Representa a los usuarios del sistema (conductores y pasajeros).
-Se relacionan con mensajes, alertas, reportes y viajes.
-
-2. Mensajería (Chat)
-
-Hay una interfaz Client, que define las operaciones del chat.
-Dos implementaciones:
-
-- PassengerGroupChat -> chat entre pasajeros.
-
-- TripChat -> chat durante un viaje (entre pasajero y conductor).
-
-3. Alertas
-
-La clase Alert representa una alerta generada durante un viaje (emergencia, desvío, accidente, etc.).
-
-La alerta usa enums:
-
-- AlertType (EMERGENCY, ACCIDENT, etc.) -> tipo de alerta
-
-- AlertStatus (SENT, IN_PROCESS, RESOLVED) -> estado de la alerta
-
-4. Viajes
-
-Viaje con estado (TripStatus).
-Contiene:
-
-- Alertas (composición)
-
-- Chat del viaje (composición)
-
-- Calificaciones
-
-Es el centro donde ocurren mensajes, alertas y evaluaciones.
-
-5. Reportes y Seguridad
-
-Dos clases:
-
-- Report → reporte individual.
-
-- ReportHistory → historial que agrupa reportes.
-
-6. Calificaciones (Rating)
-
-Evaluaciones al finalizar un viaje.
-
-**Patrones  de diseño**
-
-- Observer -> Para el sistema de notificaciones (chat en tiempo real, alertas automáticas, calificaciones).
-
-- Strategy -> Para manejar distintos tipos de alertas (Emergencia, DesviaciónRuta, accidente).
-
-- Factory Method -> Para crear objetos de tipo Alerta o Reporte según el evento.
-
-- Adapter -> Para integrar servicios externos (geolocalización, notificaciones, mensajería).
----
-
-### Diagrama de Bases de Datos
-
-<img width="387" height="463" alt="image" src="https://github.com/user-attachments/assets/3b9f2931-6040-44fb-9a0b-07ae3a847d56" />
-
-
-
-
-<img width="382" height="395" alt="image" src="https://github.com/user-attachments/assets/650cda9f-5376-4640-860c-b589470b7a17" />
-
-
-
-
-El diagrama de base de datos NoSQL para el módulo de Comunicación y Seguridad de RidECI representa la estructura principal de las colecciones que gestionan la interacción y protección de los usuarios durante los viajes. Se basa en dos colecciones externas (trips y users) que sirven como referencia para las funcionalidades del módulo. Las colecciones internas incluyen chats para la mensajería entre participantes, route_monitoring para el seguimiento geoespacial del trayecto, emergency_alerts para el manejo de situaciones críticas, ratings_and_reports para la evaluación de comportamiento, y user_reputatiopn para consolidar la reputación de cada usuario. El modelo utiliza documentos embebidos para almacenar mensajes y participantes dentro de los chats, así como detalles de reportes dentro de las calificaciones. También incorpora índices TTL para eliminar datos temporales y geoespaciales para el monitoreo en tiempo real. Las relaciones están claramente definidas mediante referencias y composición, lo que permite una implementación coherente, funcional y alineada con los requerimientos del sistema.
-
-
-
-
-
----
-
-
-
+[CoberturaSonarJacoco](./docs/documentos/Cobertura.pdf)

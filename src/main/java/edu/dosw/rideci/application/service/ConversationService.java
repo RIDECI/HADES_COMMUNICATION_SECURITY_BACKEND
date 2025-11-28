@@ -15,7 +15,7 @@ import edu.dosw.rideci.infrastructure.config.RabbitMQConfig;
 import edu.dosw.rideci.domain.entities.Conversation;
 import edu.dosw.rideci.domain.entities.Message;
 import edu.dosw.rideci.domain.enums.Status;
-
+import edu.dosw.rideci.domain.enums.TravelType;
 import edu.dosw.rideci.application.dtos.response.ConversationResponse;
 import edu.dosw.rideci.application.dtos.response.MessageResponse;
 
@@ -49,18 +49,36 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
         Conversation conv = new Conversation();
         conv.setTripId(command.getTripId());
         conv.setType(command.getChatType());
-        conv.setParticipants(command.getParticipants());
         conv.setTravelStatus(command.getTravelStatus());
 
-        boolean isActive = command.getTravelStatus() == Status.IN_COURSE || command.getTravelStatus() == Status.ACTIVE;
+        boolean isActive = command.getTravelStatus() == Status.IN_COURSE ||
+                        command.getTravelStatus() == Status.ACTIVE;
+
         conv.setActive(isActive);
+
+        List<Long> finalParticipants;
+
+        if (command.getChatType() == TravelType.GROUP) {
+            finalParticipants = new java.util.ArrayList<>(command.getParticipants());
+            if (command.getOrganizerId() != null) {
+                finalParticipants.add(command.getOrganizerId());
+            }
+
+        } else { 
+            finalParticipants = new java.util.ArrayList<>(command.getParticipants());
+            if (command.getDriverId() != null) {
+                finalParticipants.add(command.getDriverId());
+            }
+        }
+
+        conv.setParticipants(finalParticipants);
 
         convRepo.save(conv);
 
         ConversationCreatedEvent event = ConversationCreatedEvent.builder()
                 .conversationId(conv.getId())
                 .tripId(conv.getTripId())
-                .participants(command.getParticipants())
+                .participants(finalParticipants)
                 .type(conv.getType().name())
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -68,8 +86,8 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
         eventPublisher.publish(
                 event,
                 RabbitMQConfig.CONVERSATION_EXCHANGE,
-        
-                RabbitMQConfig.CONVERSATION_CREATED_ROUTING_KEY);
+                RabbitMQConfig.CONVERSATION_CREATED_ROUTING_KEY
+        );
 
         return conv.getId();
     }
@@ -130,7 +148,7 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
 
         convRepo.save(conv);
 
-        if (status == Status.COMPLETED) {
+        if (status == Status.COMPLETED || status == Status.CANCELLED) {
             TravelCompletedEvent event = TravelCompletedEvent.builder()
                     .travelId(tripId)
                     .state(status)
