@@ -25,11 +25,14 @@ public class TripEventService {
         participantIds.add(event.getDriverId());
 
         CreateConversationCommand command = CreateConversationCommand.builder()
-                .tripId(event.getTravelId())
-                .participants(participantIds)
-                .chatType(event.getTravelType())
-                .travelStatus(event.getStatus())
-                .build();
+        .tripId(event.getTravelId())
+        .organizerId(event.getOrganizerId())
+        .driverId(event.getDriverId())
+        .participants(participantIds)
+        .chatType(event.getTravelType())
+        .travelStatus(event.getStatus()) 
+        .build();
+
 
         createConversationUseCase.createChat(command);
     }
