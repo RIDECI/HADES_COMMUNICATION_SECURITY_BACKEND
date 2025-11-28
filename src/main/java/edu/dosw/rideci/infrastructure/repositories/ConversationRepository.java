@@ -6,5 +6,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import edu.dosw.rideci.domain.entities.Conversation;
 
 public interface ConversationRepository extends MongoRepository<Conversation, String> {
-    Optional<Conversation> findByTravelId(Long tripId);
+    Optional<Conversation> findByTravelId(Long travelId);
 }
