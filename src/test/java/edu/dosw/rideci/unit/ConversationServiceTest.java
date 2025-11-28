@@ -63,7 +63,7 @@ class ConversationServiceTest {
     @Test
     void testShouldCreateChatWhenActive() {
         CreateConversationCommand cmd = mock(CreateConversationCommand.class);
-        when(cmd.getTripId()).thenReturn(1L);
+        when(cmd.getTravelId()).thenReturn(1L);
         when(cmd.getChatType()).thenReturn(TravelType.TRIP);
         when(cmd.getParticipants()).thenReturn(List.of(10L));
         when(cmd.getTravelStatus()).thenReturn(Status.ACTIVE);
@@ -81,7 +81,7 @@ class ConversationServiceTest {
     @Test
     void testShouldcreateChatwhenInCourse() {
         CreateConversationCommand cmd = mock(CreateConversationCommand.class);
-        when(cmd.getTripId()).thenReturn(1L);
+        when(cmd.getTravelId()).thenReturn(1L);
         when(cmd.getChatType()).thenReturn(TravelType.TRIP);
         when(cmd.getParticipants()).thenReturn(List.of(10L));
         when(cmd.getTravelStatus()).thenReturn(Status.IN_COURSE);
@@ -100,7 +100,7 @@ class ConversationServiceTest {
     void testShouldCreateChatWhenCompleted() {
         CreateConversationCommand cmd = mock(CreateConversationCommand.class);
         when(cmd.getTravelStatus()).thenReturn(Status.COMPLETED);
-        when(cmd.getTripId()).thenReturn(1L);
+        when(cmd.getTravelId()).thenReturn(1L);
         when(cmd.getChatType()).thenReturn(TravelType.TRIP);
         when(cmd.getParticipants()).thenReturn(List.of(10L));
 
@@ -118,7 +118,7 @@ class ConversationServiceTest {
     void testShouldCreateChatWhenCancelled() {
         CreateConversationCommand cmd = mock(CreateConversationCommand.class);
         when(cmd.getTravelStatus()).thenReturn(Status.CANCELLED);
-        when(cmd.getTripId()).thenReturn(1L);
+        when(cmd.getTravelId()).thenReturn(1L);
         when(cmd.getChatType()).thenReturn(TravelType.TRIP);
         when(cmd.getParticipants()).thenReturn(List.of(10L));
 
