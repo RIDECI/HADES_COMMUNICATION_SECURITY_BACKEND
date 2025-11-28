@@ -50,6 +50,9 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
         conv.setTripId(command.getTripId());
         conv.setType(command.getChatType());
         conv.setTravelStatus(command.getTravelStatus());
+        conv.setOrganizerId(command.getOrganizerId());
+        conv.setDriverId(command.getDriverId());
+
 
         boolean isActive = command.getTravelStatus() == Status.IN_COURSE ||
                         command.getTravelStatus() == Status.ACTIVE;
