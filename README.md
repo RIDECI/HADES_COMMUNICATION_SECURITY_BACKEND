@@ -133,11 +133,11 @@ Common status codes returned by the API.
 
 ---
 
-# ## **2. Send Message Functionality**
+#**2. Send Message Functionality**
 
 ---
 
-## ### **🟦 Send Message — Input Data (Request DTO)**
+##**🟦 Send Message — Input Data (Request DTO)**
 
 ### **SendMessageRequest**
 
@@ -148,7 +148,7 @@ Common status codes returned by the API.
 
 ---
 
-## ### **🟩 Send Message — Output Data (Response DTO)**
+## **🟩 Send Message — Output Data (Response DTO)**
 
 ### **MessageResponse**
 
@@ -162,7 +162,7 @@ Common status codes returned by the API.
 
 ---
 
-# ## **3. Get Conversation Messages Functionality**
+## **3. Get Conversation Messages Functionality**
 
 ### **Output Data — List<MessageResponse>**
 
@@ -182,7 +182,7 @@ Input: only `conversationId`
 
 ---
 
-# ## **1. Create Emergency Alert — Input Data (Request DTO)**
+# **1. Create Emergency Alert — Input Data (Request DTO)**
 
 ### **EmergencyAlertRequest**
 
@@ -194,7 +194,7 @@ Input: only `conversationId`
 
 ---
 
-# ## **1. Create Emergency Alert — Output Data (Response DTO)**
+# **1. Create Emergency Alert — Output Data (Response DTO)**
 
 ### **EmergencyAlertResponse**
 
@@ -209,7 +209,7 @@ Input: only `conversationId`
 
 ---
 
-# ## **2. Get Emergency Alert — Output Data**
+# **2. Get Emergency Alert — Output Data**
 
 ### **EmergencyAlertResponse**
 
@@ -217,7 +217,7 @@ Input: only `conversationId`
 Input: only `alertId`.
 
 
-# ## **3. Update Emergency Alert Status — Input Data**
+# **3. Update Emergency Alert Status — Input Data**
 
 ### **AlertStatusUpdateRequest** 
 
@@ -228,7 +228,7 @@ Input: only `alertId`.
 
 ---
 
-## ### **Update Emergency Alert — Output Data**
+## **Update Emergency Alert — Output Data**
 
 ### **EmergencyAlertResponse**
 
