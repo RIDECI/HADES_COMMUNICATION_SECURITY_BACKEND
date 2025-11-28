@@ -97,11 +97,159 @@ Common status codes returned by the API.
 | `404` | **Not Found** | Route or Trip ID does not exist. |
 | `500` | **Internal Server Error** | Unexpected error (e.g., Google Maps API failure).
 
-# Input and Output Data
-Data information per functionability
+
+# #️⃣ **Input and Output Data**
+
+
+# ## **1. Chat Functionality**
+
+---
+
+## ### **🟦 Create Conversation — Input Data (Request DTO)**
+
+### **CreateConversationRequest**
+
+| Field          | Type              | Constraints                               |
+| -------------- | ----------------- | ----------------------------------------- |
+| `tripId`       | Long              | Must refer to an existing trip. Not null. |
+| `type`         | TravelType (Enum) | Must be TRIP or GROUP. Not null.          |
+| `participants` | List<Long>        | Must include at least 2 valid user IDs.   |
+
+---
+
+## ### **🟩 Create Conversation — Output Data (Response DTO)**
+
+### **ConversationResponse**
+
+| Field          | Type       | Description                                 |
+| -------------- | ---------- | ------------------------------------------- |
+| `id`           | String     | Automatically generated conversation ID.    |
+| `tripId`       | Long       | Linked trip ID. Must exist.                 |
+| `organizerId`  | Long       | Organizer user ID.                          |
+| `driverId`     | Long       | Driver user ID.                             |
+| `type`         | TravelType | TRIP or GROUP type.                         |
+| `active`       | boolean    | Indicates if the chat is active.            |
+| `participants` | List<Long> | Complete list of users in the conversation. |
+
+---
+
+# ## **2. Send Message Functionality**
+
+---
+
+## ### **🟦 Send Message — Input Data (Request DTO)**
+
+### **SendMessageRequest**
+
+| Field      | Type   | Constraints                              |
+| ---------- | ------ | ---------------------------------------- |
+| `senderId` | String | Must be a valid user. Not null or empty. |
+| `content`  | String | Cannot be empty.                         |
+
+---
+
+## ### **🟩 Send Message — Output Data (Response DTO)**
+
+### **MessageResponse**
+
+| Field            | Type   | Description                                        |
+| ---------------- | ------ | -------------------------------------------------- |
+| `messageId`      | String | Auto-generated ID.                                 |
+| `conversationId` | String | ID of the conversation where the message was sent. |
+| `senderId`       | String | User who sent the message.                         |
+| `content`        | String | Message content.                                   |
+| `timestamp`      | Date   | Date and time the message was created.             |
+
+---
+
+# ## **3. Get Conversation Messages Functionality**
+
+### **Output Data — List<MessageResponse>**
+
+Each item contains:
+
+* `messageId`
+* `conversationId`
+* `senderId`
+* `content`
+* `timestamp`
+
+Input: only `conversationId` 
+
+---
+
+# #️⃣ **Emergency Alert Functionality**
+
+---
+
+# ## **1. Create Emergency Alert — Input Data (Request DTO)**
+
+### **EmergencyAlertRequest**
+
+| Field             | Type     | Constraints                                |
+| ----------------- | -------- | ------------------------------------------ |
+| `userId`          | Long     | Must be a valid user. Not null.            |
+| `tripId`          | Long     | Must correspond to an active trip.         |
+| `currentLocation` | Location | Must contain valid latitude and longitude. |
+
+---
+
+# ## **1. Create Emergency Alert — Output Data (Response DTO)**
+
+### **EmergencyAlertResponse**
+
+| Field             | Type          | Description                                   |
+| ----------------- | ------------- | --------------------------------------------- |
+| `id`              | String        | Auto-generated alert ID.                      |
+| `userId`          | Long          | User who triggered the alert.                 |
+| `tripId`          | Long          | Trip where the emergency occurred.            |
+| `currentLocation` | Location      | Exact coordinates at the moment of the alert. |
+| `createdAt`       | LocalDateTime | System-generated timestamp.                   |
+| `additionalInfo`  | String        | Optional additional information.              |
+
+---
+
+# ## **2. Get Emergency Alert — Output Data**
+
+### **EmergencyAlertResponse**
+
+
+Input: only `alertId`.
+
+
+# ## **3. Update Emergency Alert Status — Input Data**
+
+### **AlertStatusUpdateRequest** 
+
+| Field            | Type        | Constraints                              |
+| ---------------- | ----------- | ---------------------------------------- |
+| `status`         | AlertStatus | Must be CREATED, CONFIRMED, or RESOLVED. |
+| `additionalInfo` | String      | Optional.                                |
+
+---
+
+## ### **Update Emergency Alert — Output Data**
+
+### **EmergencyAlertResponse**
+
+Includes:
+
+* id
+* userId
+* tripId
+* currentLocation
+* createdAt
+* additionalInfo
+* **updated status**
+
+---
+
+
+
 # 🔗 Connections with other Microservices
 This module does not work alone. It interacts with the RideCi Ecosystem via REST APIs and Message Brokers:
 1. Travel Management Module: Receives information about the travel when the travel is completed or only created.
+2. Authentication: We receive information from authenticated users
 
 # Technologies
 The following technologies were used to build and deploy this module:
@@ -208,13 +356,80 @@ Administrator: Monitors incidents and reports generated on the platform, making 
 
 ### 🧩 Class Diagram
 ---
-Based on the Specific Components diagram, we created the class diagram, where we defined an Observer design pattern that will notify all passengers already registered on the trip, allowing them to view the current location at certain intervals, and all the information about the estimated route, the distance traveled, and so on.
+The class diagram presents the overall structure of the communication and emergency module. On the left, it highlights the conversation-messaging model, where Conversation represents the chat linked to a trip and stores key data such as trip ID, participants, travel type, and status. The Message entity is tied directly to a conversation and captures each individual message with its content, sender, and timestamp. Supporting components like CreateConversationCommand encapsulate the data required to create a conversation, while enums such as TravelType and Status define the type of trip and its current state.
 
+At the center, the diagram shows the application logic through services and use cases. ConversationService manages chat creation, message sending, and status updates, communicating through repository ports and publishing events such as ConversationCreatedEvent and MessageSentEvent using the EventPublisher to integrate with other modules. On the right, the emergency alert module appears with the EmergencyAlert entity, which stores user location, trip data, and timestamps when an alert is triggered. Its service and repository port handle persistence and retrieval, while EmergencyAlertEvent notifies the system of critical events. Overall, the diagram reflects a clean DDD-oriented architecture with clear boundaries between entities, services, repositories, and domain events.
+
+![Class Diagram](./docs/images/DiagramaClases.png)
 
 ### 🧩 Data Base Diagram
----
-This diagram represents how the data is stored, where we will find the multiple documents, and the data that will be stored in an embedded or referenced manner.
 
+This diagram shows how the system uses a NoSQL database to store documents such as *EmergencyAlert*, *Location*, *Conversation*, and *Message*. These documents were chosen because NoSQL provides flexible, fast and event-oriented storage, which is ideal for dynamic features like real-time chat and emergency alerts. Instead of relying on rigid relational schemas, NoSQL allows the system to store complete domain objects as independent documents, improving performance and reducing complexity.
+
+Each document represents a self-contained unit of information. For example, *Conversation* stores everything needed for a chat without multiple table joins, while *Message* is separated because it grows quickly and must be queried efficiently. *EmergencyAlert* embeds *Location* to provide immediate access to user coordinates without performing relational lookups.
+
+The events shown above —*EmergencyAlertEvent*, *ConversationCreatedEvent*, *TravelCreatedEvent*, *TravelCompletedEvent*, and *MessageSentEvent*— exist because each document can trigger additional actions in other modules. These events keep the architecture decoupled, reactive, and able to notify other components in real time.
+
+
+# **📄 DOCUMENTS**
+
+---
+
+## **📌 EmergencyAlert**
+
+| Field           | Type                    | Origin         | Restrictions                                     |
+| --------------- | ----------------------- | -------------- | ------------------------------------------------ |
+| **id**          | String                  | Auto-generated | Unique identifier. Cannot be null.               |
+| **tripId**      | Long                    | Object         | Must reference a valid trip. Cannot be null.     |
+| **type**        | ReportType (Enum)       | Domain enum    | Cannot be null.                                  |
+| **userId**      | Long                    | Object         | Must correspond to a valid user. Cannot be null. |
+| **targetId**    | Long                    | Object         | Reported user. Must be authenticated.            |
+| **location**    | Location (Value Object) | Nested object  | Must include valid latitude and longitude.       |
+| **description** | String                  | Object         | Optional.                                        |
+| **createdAt**   | LocalDateTime           | Object         | Automatically generated. Cannot be null.         |
+
+---
+
+## **📌 Location (Value Object)**
+
+| Field         | Type   | Origin    | Restrictions                            |
+| ------------- | ------ | --------- | --------------------------------------- |
+| **longitude** | double | Primitive | Must be between -180 and 180. Required. |
+| **latitude**  | double | Primitive | Must be between -90 and 90. Required.   |
+| **direction** | String | Object    | Optional description or reference.      |
+
+---
+
+## **📌 Conversation**
+
+| Field            | Type              | Origin         | Restrictions                                      |
+| ---------------- | ----------------- | -------------- | ------------------------------------------------- |
+| **id**           | String            | Auto-generated | Unique identifier. Cannot be null.                |
+| **travelId**     | Long              | Object         | Must reference an existing trip. Cannot be null.  |
+| **organizerId**  | Long              | Object         | Must be a valid system user. Cannot be null.      |
+| **driverId**     | Long              | Object         | Valid driver ID. Can be null for group trips.     |
+| **type**         | TravelType (Enum) | Domain enum    | Only TRIP or GROUP. Cannot be null.               |
+| **travelStatus** | Status (Enum)     | Domain enum    | Must be a valid state (ACTIVE, COMPLETED, etc.).  |
+| **active**       | boolean           | Primitive      | Indicates if the chat is open. Defaults to false. |
+| **participants** | List<Long>        | Collection     | Must contain at least 2 valid user IDs.           |
+| **createdAt**    | Date              | Object         | Auto-assigned. Cannot be null.                    |
+| **updatedAt**    | Date              | Object         | Updated on each modification. Cannot be null.     |
+
+---
+
+## **📌 Message**
+
+| Field              | Type   | Origin         | Restrictions                                             |
+| ------------------ | ------ | -------------- | -------------------------------------------------------- |
+| **messageId**      | String | Auto-generated | Cannot be null. Unique ID of the message.                |
+| **conversationId** | String | Object         | Must reference an existing conversation. Cannot be null. |
+| **senderId**       | String | Object         | Must be a valid user. Cannot be null or empty.           |
+| **content**        | String | Object         | Cannot be empty. Must contain at least one character.    |
+| **timestamp**      | Date   | Object         | Auto-assigned. Cannot be null.                           |
+
+![Data diagram](./docs/images/BaseDatos.png)
+
+---
 
 ### 🧩 Sequence Diagrams
 ---
@@ -231,6 +446,21 @@ The system includes three main functionalities for a conversation: creating a co
 ![Sequence Diagrams](./docs/images/CreateConversation.jpeg)
 
 ## 🚨Reports and alerts
+The system includes three main functionalities related to emergency alerts: creating an alert, obtaining a specific alert and updating its status. 
+These functionalities allow users to report risk situations during a trip, administrators to review the incident, and the system to track the process from its creation to its resolution. 
+
+The creation of the alert allows the incident to be recorded with the location and user involved; Obtaining an alert allows you to view your information; and the status update allows you to confirm or resolve the emergency.
+
+# 🆘CreateAlert
+![Sequence Diagrams](./docs/images/CreateAlert.jpeg)
+# 🆘GetAlert
+![Sequence Diagrams](./docs/images/getAlert.jpeg)
+# 🆘UpdateAlert
+![Sequence Diagrams](./docs/images/UpdateAlert1.jpeg)
+![Sequence Diagrams](./docs/images/UpdateAlert2.jpeg)
+
+
+
 
 ### 🧩 Specific Deploy Diagram
 ---
