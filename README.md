@@ -184,53 +184,59 @@ This section provides a visual representation of the module's architecture ilust
 
 ### 🧩 Context Diagram
 ---
-Text
-![Context Diagram](./docs/diagramaContexto.png)
+The diagram shows how the RidECI Communication and Safety Module centralizes the interaction between the main actors: Driver, Passenger and Administrator. The Driver and Passenger use the module to send and receive messages, while the Passenger can activate the emergency button and rate the trip, ensuring communication and protection during the journey. The Administrator, for his part, monitors incidents and reviews security reports to make decisions and corrective actions. Together, the module integrates communication and security mechanisms, strengthening trust and protection in the platform.
+
+![Context Diagram](./docs/images/DiagramaContexto.png)
 
 ### 🧩 Specific Components Diagram
 ---
-This diagram visualizes the dependencies between classes for developing the module's logic. It includes the following components:
-* Controllers:
-    * Geolocalization Controller: This controller receives and manages all requests related to geolocation management, routes, and tracking, including references handled via DTOs.
-When applying a hexagonal architecture, before developing the use cases, we need adapter components:
-* Adapter:
-    * Geolocalization Adapter: Contracts (interfaces) are defined based on the input received from the controllers.
-    * Mapper Adapter: This adapter transforms data types from one object to another for use in the respective use cases.
-* Use Cases:
-    * Get Emergency Contacts Use Case: Implementation to allow passengers to share their location with emergency contacts.
-    * Get Geolocation Information Use Case: Obtain position information at regular intervals.
-    * Generate Automatic Alerts Use Case: Generate automatic alerts at the beginning and end of the trip.
-* Ports: The following interfaces were defined as the data we will receive from the outside:
-    * Port Notifications
-    * Port Profiles
-    * Port Travel Information
-![Specific Components Diagram](./docs/diagramaComponentes.png)
+The diagram describes the structure of the RidECI Communication and Security Module and its interaction with other microservices. The module is organized into use cases, internal components, adapters and external services, allowing you to manage critical functions such as chat, emergency alerts, incident reports and deviation detection. Use cases include security report management (UserSecurity), real-time communication (Chat) and emergency activation (EmergencyAlert). Internally, the IncidentManager records and classifies incidents, while the RouteDeviationDetector checks for route deviations and generates alerts. The AuthAdapter and NotificationAdapter adapters validate users and send external notifications, respectively. External services, such as Geolocation, Travel Management, and User Management, provide location, travel, and user information to support the operation of the module. Together, the system flow ensures that each user action is processed, validated and, in the event of incidents, managed with alerts and efficient communication.
+
+![Specific Components Diagram](./docs/images/DiagramaComponentes.png)
 
 ### 🧩 Use Cases Diagram
 ---
-This diagram presents the main functionalities defined by each actor. This facilitates a better understanding when implementing the module's multiple functions, as well as identifying and separating each actor's roles when using the application.
-![Use Cases Diagram](./docs/diagramaCasosUso.png)
+The use case diagram shows the functionalities that the system offers to the different actors and how they interact with the module. The main actors are: 
+
+Driver: You can send and receive messages with passengers, and your location is monitored for route deviations. 
+
+Passenger: You can send and receive messages, activate the emergency button in risky situations and rate the trip at the end. 
+
+Administrator: Monitors incidents and reports generated on the platform, making decisions or corrective actions when necessary.
+
+![Use Cases Diagram](./docs/images/CasosDeUso.png)
 
 ### 🧩 Class Diagram
 ---
 Based on the Specific Components diagram, we created the class diagram, where we defined an Observer design pattern that will notify all passengers already registered on the trip, allowing them to view the current location at certain intervals, and all the information about the estimated route, the distance traveled, and so on.
-![Class Diagram](./docs/diagramaClases.png)
+
 
 ### 🧩 Data Base Diagram
 ---
 This diagram represents how the data is stored, where we will find the multiple documents, and the data that will be stored in an embedded or referenced manner.
-![Data Base Diagram](./docs/diagramaDeBasesDeDatos.png)
+
 
 ### 🧩 Sequence Diagrams
 ---
-This diagram presents the complete CRUD workflow for trip geolocation. It includes sequence diagrams for initiating, updating, and ending a trip.
-The diagram also details the required validations and potential errors that may occur in each functionality. Finally, it illustrates the components involved in each process, including the Google Maps API and the relationship between them.
-![Sequence Diagrams](./docs/diagramaSecuenciaGeolocalización.png)
+## 📝CHAT
+The system includes three main functionalities for a conversation: creating a conversation, sending a message and obtaining messages from a conversation. These features allow two users to communicate during a trip and consult the associated chat history. Creating the conversation allows you to start a communication channel, sending messages allows interaction between participants, and obtaining messages allows you to view the complete history of what was sent.
+
+# 💬Get messages
+![Sequence Diagrams](./docs/images/GetMessages.jpeg)
+
+# 📩Send messages
+![Sequence Diagrams](./docs/images/SendMessages.jpeg)
+
+# 🗨️Create Conversation
+![Sequence Diagrams](./docs/images/CreateConversation.jpeg)
+
+## 🚨Reports and alerts
 
 ### 🧩 Specific Deploy Diagram
 ---
-This diagram illustrates the cloud deployment architecture and workflow of the geolocation, routes and tracking module.
-![Specific Deploy Diagram](./docs/diagramaDespliegueEspecifico.png)
+The deployment diagram shows that the client application in React and TypeScript communicates with the system through an HTTPS/WebSocket gateway for traditional and real-time functions, while the main module runs on Railway and uses MongoDB on Docker for storage. It integrates with a geolocation service and a notifications component, and uses CI/CD tools such as GitHub Actions, Jacoco, and SonarQube to automate deployments, analyze code quality, and measure test coverage. Taken together, the diagram reflects a distributed infrastructure that connects client, backend, database, external services, and automation efficiently.
+
+![Specific Deploy Diagram](./docs/images/DiagramaDespliegue.png)
 
 # 🚀 Getting Started
 This section guides you through setting ip the project locally. This project requires **Java 17**. If you have a different version, you can change it or we recommend using **Docker** to ensure compatibility before compile.
