@@ -148,7 +148,7 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
 
         convRepo.save(conv);
 
-        if (status == Status.COMPLETED || status == Status.CANCELLED) {
+        if (status == Status.COMPLETED) {
             TravelCompletedEvent event = TravelCompletedEvent.builder()
                     .travelId(tripId)
                     .state(status)

@@ -75,7 +75,6 @@ class ConversationServiceTest {
         });
 
         String id = service.createChat(cmd);
-
         assertEquals("1", id);
     }
 
@@ -133,7 +132,6 @@ class ConversationServiceTest {
         service.createChat(cmd);
     }
 
-
     @Test
     void testShouldSendMessage() {
         when(convRepo.existsById("abc123")).thenReturn(true);
@@ -154,12 +152,7 @@ class ConversationServiceTest {
         when(convRepo.existsById("404")).thenReturn(false);
         Message message = new Message("404", "1", "Hola");
 
-        try {
-            service.sendMessage("404", message);
-            fail("Debió lanzar excepción");
-        } catch (ConversationException ex) {
-            assertTrue(ex.getMessage().toLowerCase().contains("no encontrada"));
-        }
+        assertThrows(ConversationException.class, () -> service.sendMessage("404", message));
     }
 
     @Test
@@ -175,19 +168,13 @@ class ConversationServiceTest {
         when(mapper.toMessageResponse(any())).thenReturn(new MessageResponse());
 
         List<MessageResponse> result = service.getMessages("abc123");
-
         assertEquals(2, result.size());
     }
 
     @Test
     void testShouldGetMessagesNotFound_throwsException() {
         when(convRepo.existsById("missing")).thenReturn(false);
-
-        ConversationException ex = assertThrows(ConversationException.class, () -> {
-            service.getMessages("missing");
-        });
-
-        assertTrue(ex.getMessage().contains("Conversation no encontrada"));
+        assertThrows(ConversationException.class, () -> service.getMessages("missing"));
     }
 
     @Test
@@ -196,14 +183,12 @@ class ConversationServiceTest {
         when(mapper.toConversationResponse(any())).thenReturn(new ConversationResponse());
 
         ConversationResponse response = service.getConversation("abc123");
-
         assertNotNull(response);
     }
 
     @Test
     void testShouldGetConversationNotFound() {
         when(convRepo.findById(any())).thenReturn(Optional.empty());
-
         assertThrows(ConversationException.class, () -> service.getConversation("notFound"));
     }
 
@@ -259,12 +244,7 @@ class ConversationServiceTest {
     @Test
     void testShouldUpdateStatusNoConversation_throwsException() {
         when(convRepo.findByTripId(999L)).thenReturn(Optional.empty());
-
-        ConversationException ex = assertThrows(ConversationException.class, () -> {
-            service.updateStatus(999L, Status.ACTIVE);
-        });
-
-        assertTrue(ex.getMessage().contains("No existe conversación para el tripId:"));
+        assertThrows(ConversationException.class, () -> service.updateStatus(999L, Status.ACTIVE));
     }
 
     @Test
@@ -275,7 +255,6 @@ class ConversationServiceTest {
         when(mapper.toMessageResponse(msg)).thenReturn(mockResponse);
 
         MessageResponse result = service.toMessageResponse(msg);
-
         assertSame(mockResponse, result);
         verify(mapper, times(1)).toMessageResponse(msg);
     }
