@@ -4,9 +4,13 @@ import edu.dosw.rideci.domain.valueobjects.Location;
 import lombok.Data;
 
 @Data
-public class EmergencyAlertRequest {
 
+public class AutomaticReportRequest {
     private Long userId;
+    private Long tripId;
+    private Location location;
+    private Long targetId;
+
     private Long travelId;
     private Location currentLocation;
 }

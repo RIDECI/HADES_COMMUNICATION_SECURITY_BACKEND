@@ -21,27 +21,29 @@ public class RabbitMQConfig {
     public static final String CONVERSATION_EXCHANGE = "rideci.conversation.exchange";
     public static final String CONVERSATION_CREATED_ROUTING_KEY = "conversation.created";
     public static final String CONVERSATION_CREATED_QUEUE = "rideci.conversation.created.queue";
-    public static final String EMERGENCY_EXCHANGE = "rideci.emergency.exchange";
-    public static final String EMERGENCY_CREATED_ROUTING_KEY = "emergency.created";
-    public static final String EMERGENCY_CREATED_QUEUE = "rideci.emergency.created.queue";
+    public static final String REPORT_EXCHANGE = "rideci.report.exchange";
+    public static final String REPORT_CREATED_ROUTING_KEY = "report.created";
+    public static final String REPORT_CREATED_QUEUE = "rideci.report.created.queue";
 
     @Bean
-    public TopicExchange emergencyExchange() {
-        return new TopicExchange(EMERGENCY_EXCHANGE, true, false);
+    public TopicExchange reportExchange() {
+        return new TopicExchange(REPORT_EXCHANGE, true, false);
     }
 
     @Bean
-    public Queue emergencyCreatedQueue() {
-        return new Queue(EMERGENCY_CREATED_QUEUE, true);
+    public Queue reportCreatedQueue() {
+        return new Queue(REPORT_CREATED_QUEUE, true);
     }
 
     @Bean
-    public Binding emergencyCreatedBinding() {
+    public Binding reportCreatedBinding() {
         return BindingBuilder
-                .bind(emergencyCreatedQueue())
-                .to(emergencyExchange())
-                .with(EMERGENCY_CREATED_ROUTING_KEY);
+                .bind(reportCreatedQueue())
+                .to(reportExchange())
+                .with(REPORT_CREATED_ROUTING_KEY);
     }
+
+
 
     @Bean
     public TopicExchange conversationExchange() {
