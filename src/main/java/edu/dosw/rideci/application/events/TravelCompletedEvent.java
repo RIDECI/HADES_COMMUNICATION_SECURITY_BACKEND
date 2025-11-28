@@ -1,5 +1,7 @@
 package edu.dosw.rideci.application.events;
 
+import java.util.List;
+
 import edu.dosw.rideci.domain.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,5 +14,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class TravelCompletedEvent {
     private Long travelId;
+
+    private Long driverId;
+
+    private List<Long> passengerList;
+
     private Status state;
 }

@@ -15,7 +15,7 @@ import edu.dosw.rideci.infrastructure.config.RabbitMQConfig;
 import edu.dosw.rideci.domain.entities.Conversation;
 import edu.dosw.rideci.domain.entities.Message;
 import edu.dosw.rideci.domain.enums.Status;
-
+import edu.dosw.rideci.domain.enums.TravelType;
 import edu.dosw.rideci.application.dtos.response.ConversationResponse;
 import edu.dosw.rideci.application.dtos.response.MessageResponse;
 
@@ -41,9 +41,6 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
     private final MessageRepositoryPort msgRepo;
     private final ConversationMapper mapper;
     private final EventPublisher eventPublisher;
-    private final BadWordsFilter badWordsFilter;
-
-    private static final int MAX_MESSAGE_LENGTH = 250;
 
     @Override
     @Transactional
@@ -52,20 +49,36 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
         Conversation conv = new Conversation();
         conv.setTripId(command.getTripId());
         conv.setType(command.getChatType());
-        conv.setOrganizerId(command.getOrganizerId());
-        conv.setDriveId(command.getDriverId());
-        conv.setParticipants(command.getParticipants());
         conv.setTravelStatus(command.getTravelStatus());
 
-        boolean isActive = command.getTravelStatus() == Status.IN_COURSE || command.getTravelStatus() == Status.ACTIVE;
+        boolean isActive = command.getTravelStatus() == Status.IN_COURSE ||
+                        command.getTravelStatus() == Status.ACTIVE;
+
         conv.setActive(isActive);
+
+        List<Long> finalParticipants;
+
+        if (command.getChatType() == TravelType.GROUP) {
+            finalParticipants = new java.util.ArrayList<>(command.getParticipants());
+            if (command.getOrganizerId() != null) {
+                finalParticipants.add(command.getOrganizerId());
+            }
+
+        } else { 
+            finalParticipants = new java.util.ArrayList<>(command.getParticipants());
+            if (command.getDriverId() != null) {
+                finalParticipants.add(command.getDriverId());
+            }
+        }
+
+        conv.setParticipants(finalParticipants);
 
         convRepo.save(conv);
 
         ConversationCreatedEvent event = ConversationCreatedEvent.builder()
                 .conversationId(conv.getId())
                 .tripId(conv.getTripId())
-                .participants(command.getParticipants())
+                .participants(finalParticipants)
                 .type(conv.getType().name())
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -73,7 +86,8 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
         eventPublisher.publish(
                 event,
                 RabbitMQConfig.CONVERSATION_EXCHANGE,
-                RabbitMQConfig.CONVERSATION_CREATED_ROUTING_KEY);
+                RabbitMQConfig.CONVERSATION_CREATED_ROUTING_KEY
+        );
 
         return conv.getId();
     }
@@ -81,24 +95,8 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
     @Override
     @Transactional
     public void sendMessage(String conversationId, Message message) {
-
-        Conversation conv = convRepo.findById(conversationId)
-                .orElseThrow(() -> new ConversationException("Conversation no encontrada"));
-
-        if (!conv.isActive()) {
-            throw new ConversationException("No se pueden enviar mensajes. El viaje no está activo.");
-        }
-
-        if (message.getContent() == null || message.getContent().isBlank()) {
-            throw new ConversationException("El mensaje no puede estar vacío.");
-        }
-
-        if (message.getContent().length() > MAX_MESSAGE_LENGTH) {
-            throw new ConversationException("El mensaje supera el límite de " + MAX_MESSAGE_LENGTH + " caracteres.");
-        }
-
-        if (badWordsFilter.containsBadWords(message.getContent())) {
-            throw new ConversationException("El mensaje contiene lenguaje no permitido, por favor no seas grosero.");
+        if (!convRepo.existsById(conversationId)) {
+            throw new ConversationException("Conversation no encontrada");
         }
 
         msgRepo.save(message);
@@ -119,7 +117,6 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
                 RabbitMQConfig.CHAT_ROUTING_KEY);
     }
 
-
     public List<MessageResponse> getMessages(String conversationId) {
         if (!convRepo.existsById(conversationId)) {
             throw new ConversationException("Conversation no encontrada");
@@ -130,6 +127,7 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
                 .toList();
     }
 
+    
     public ConversationResponse getConversation(String conversationId) {
         return convRepo.findById(conversationId)
                 .map(mapper::toConversationResponse)
@@ -165,12 +163,6 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
 
     public MessageResponse toMessageResponse(Message message) {
         return mapper.toMessageResponse(message);
-    }
-
-    public List<ConversationResponse> getAllConversations() {
-        return convRepo.findAll().stream()
-                .map(mapper::toConversationResponse)
-                .toList();
     }
 
 }

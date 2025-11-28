@@ -20,7 +20,6 @@ public class CreateConversationCommand {
     private Long tripId;
 
     private Long organizerId;
-
+    
     private Long driverId;
-
 }

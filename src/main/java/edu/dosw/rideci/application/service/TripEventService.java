@@ -18,43 +18,17 @@ public class TripEventService {
     private final CreateConversationUseCase createConversationUseCase;
     private final UpdateConversationStatusUseCase updateConversationStatusUseCase;
 
+    
     public void processTripCreated(TravelCreatedEvent event) {
 
-        System.out.println("🔧 Procesando TripCreatedEvent...");
-        System.out.println("🆔 Trip ID: " + event.getTravelId());
-        System.out.println("🚗 Driver: " + event.getDriverId());
-        System.out.println("👤 Organizer: " + event.getOrganizerId());
-        System.out.println("📦 TravelType: " + event.getTravelType());
-
-        var participantIds = new ArrayList<Long>();
-
-        switch (event.getTravelType()) {
-
-            case TRIP:
-                if (event.getDriverId() != null) {
-                    participantIds.add(event.getDriverId());
-                }
-                if (event.getPassengersId() != null) {
-                    participantIds.addAll(event.getPassengersId());
-                }
-                break;
-
-            case GROUP:
-                if (event.getOrganizerId() != null) {
-                    participantIds.add(event.getOrganizerId());
-                }
-                if (event.getPassengersId() != null) {
-                    participantIds.addAll(event.getPassengersId());
-                }
-                break;
-        }
+        var participantIds = new ArrayList<Long>(event.getPassengersId());
+        participantIds.add(event.getDriverId());
 
         CreateConversationCommand command = CreateConversationCommand.builder()
                 .tripId(event.getTravelId())
                 .participants(participantIds)
-                .organizerId(event.getOrganizerId())
                 .chatType(event.getTravelType())
-                .travelStatus(event.getState())
+                .travelStatus(event.getStatus())
                 .build();
 
         createConversationUseCase.createChat(command);

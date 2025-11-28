@@ -12,7 +12,6 @@ import edu.dosw.rideci.application.events.command.CreateConversationCommand;
 import edu.dosw.rideci.application.service.ConversationService;
 import edu.dosw.rideci.domain.entities.Message;
 
-
 @RestController
 @RequestMapping("/conversations")
 public class ConversationController {
@@ -27,9 +26,12 @@ public class ConversationController {
     public ResponseEntity<ConversationResponse> create(@RequestBody CreateConversationRequest req) {
 
         CreateConversationCommand command = CreateConversationCommand.builder()
-                .participants(req.getParticipants())
-                .chatType(req.getType())
                 .tripId(req.getTripId())
+                .chatType(req.getType())
+                .participants(req.getParticipants())
+                .driverId(req.getDriverId())
+                .organizerId(req.getOrganizerId())
+                .travelStatus(req.getTravelStatus())
                 .build();
 
         String conversationId = service.createChat(command);
@@ -39,19 +41,14 @@ public class ConversationController {
         return ResponseEntity.ok(resp);
     }
 
-    @GetMapping
-    public ResponseEntity<List<ConversationResponse>> getAll() {
-        return ResponseEntity.ok(service.getAllConversations());
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ConversationResponse> getConversation(@PathVariable String id) {
         return ResponseEntity.ok(service.getConversation(id));
     }
-
     
     @GetMapping("/{id}/messages")
-    public ResponseEntity<List<MessageResponse>> getMessages(@PathVariable String id) {
+    public ResponseEntity<List<MessageResponse>> messages(@PathVariable String id) {
         return ResponseEntity.ok(service.getMessages(id));
     }
 
