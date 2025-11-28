@@ -67,7 +67,7 @@ public class RabbitMQConfig {
 
     public static final String TRIP_CREATED_ROUTING_KEY = "travel.created";
     public static final String TRIP_CREATED_QUEUE = "security.travel.created.queue";
-
+ 
     public static final String TRIP_FINISHED_ROUTING_KEY = "travel.completed";
     public static final String TRIP_FINISHED_QUEUE = "security.travel.completed.queue";
 

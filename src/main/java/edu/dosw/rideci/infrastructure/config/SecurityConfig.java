@@ -10,21 +10,26 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import org.springframework.security.config.Customizer;
+
 @Configuration
 public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
         http
-            .csrf(csrf -> csrf.disable())        
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable()) 
             .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll()        
-            );
+                .requestMatchers("/ws/**").permitAll()
+                .requestMatchers("/wss/**").permitAll()    
+                .anyRequest().permitAll()
+            )
+            .httpBasic(Customizer.withDefaults())
+            .formLogin(form -> form.disable());
 
         return http.build();
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
