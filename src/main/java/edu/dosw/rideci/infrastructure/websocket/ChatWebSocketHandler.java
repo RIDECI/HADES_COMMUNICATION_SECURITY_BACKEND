@@ -1,9 +1,9 @@
 package edu.dosw.rideci.infrastructure.websocket;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
@@ -25,7 +25,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     private final ConversationService conversationService;
     private final ObjectMapper mapper = new ObjectMapper();
-    private final Map<String, List<WebSocketSession>> activeSessions = new HashMap<>();
+    private final Map<String, List<WebSocketSession>> activeSessions = new ConcurrentHashMap<>();
 
     public ChatWebSocketHandler(ConversationService conversationService) {
         this.conversationService = conversationService;
@@ -49,6 +49,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             List<WebSocketSession> sessions = activeSessions.get(conversationId);
             if (sessions != null) {
                 sessions.remove(session);
+                
                 if (sessions.isEmpty()) {
                     activeSessions.remove(conversationId);
                 }
@@ -65,26 +66,35 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
         String conversationId = incoming.getConversationId();
 
-        activeSessions.putIfAbsent(conversationId, new ArrayList<>());
-        if (!activeSessions.get(conversationId).contains(session)) {
-            activeSessions.get(conversationId).add(session);
+        List<WebSocketSession> sessions = activeSessions.computeIfAbsent(
+            conversationId, k -> new CopyOnWriteArrayList<>()
+        );
+        
+        if (!sessions.contains(session)) {
+            sessions.add(session);
         }
 
         Message message = new Message(
-                conversationId,
-                incoming.getSenderId(),
-                incoming.getContent()
+            conversationId,
+            incoming.getSenderId(),
+            incoming.getContent()
         );
 
         conversationService.sendMessage(conversationId, message);
 
         MessageResponse savedMsg = conversationService.toMessageResponse(message);
-
         String json = mapper.writeValueAsString(savedMsg);
 
-        for (WebSocketSession s : activeSessions.get(conversationId)) {
+        for (WebSocketSession s : sessions) {
             if (s.isOpen()) {
-                s.sendMessage(new TextMessage(json));
+                try {
+                    s.sendMessage(new TextMessage(json));
+                } catch (Exception e) {
+                    System.err.println("Error al enviar mensaje a la sesión " + s.getId() + ": " + e.getMessage());
+                    sessions.remove(s);
+                }
+            } else {
+                sessions.remove(s); 
             }
         }
     }
@@ -98,14 +108,23 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         try {
             String json = mapper.writeValueAsString(event);
 
-            if (!activeSessions.containsKey(conversationId)) {
+            List<WebSocketSession> sessions = activeSessions.get(conversationId);
+            
+            if (sessions == null || sessions.isEmpty()) {
                 System.out.println("⚠️ No hay sesiones activas para conversacion " + conversationId);
                 return;
             }
 
-            for (WebSocketSession session : activeSessions.get(conversationId)) {
+            for (WebSocketSession session : sessions) {
                 if (session.isOpen()) {
-                    session.sendMessage(new TextMessage(json));
+                    try {
+                        session.sendMessage(new TextMessage(json));
+                    } catch (Exception e) {
+                        System.err.println("Error al enviar evento a la sesión " + session.getId() + ": " + e.getMessage());
+                        sessions.remove(session);
+                    }
+                } else {
+                    sessions.remove(session);
                 }
             }
 
