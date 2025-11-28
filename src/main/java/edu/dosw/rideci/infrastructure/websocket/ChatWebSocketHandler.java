@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -31,7 +33,29 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        System.out.println("Nueva conexión WebSocket: " + session.getId());
+        System.out.println("Nueva conexión WebSocket establecida: " + session.getId());
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+        System.out.println("Conexión WebSocket cerrada: " + session.getId() + " con código: " + status.getCode());
+        
+        List<String> conversationIdsToRemove = activeSessions.entrySet().stream()
+            .filter(entry -> entry.getValue().contains(session))
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toList());
+
+        for (String conversationId : conversationIdsToRemove) {
+            List<WebSocketSession> sessions = activeSessions.get(conversationId);
+            if (sessions != null) {
+                sessions.remove(session);
+                if (sessions.isEmpty()) {
+                    activeSessions.remove(conversationId);
+                }
+            }
+        }
+        
+        System.out.println("Sesión " + session.getId() + " eliminada de las sesiones activas.");
     }
 
     @Override
@@ -63,6 +87,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                 s.sendMessage(new TextMessage(json));
             }
         }
+    }
+    
+    @Override
+    public void handleTransportError(WebSocketSession session, Throwable exception) {
+        System.err.println("Error de transporte en sesión " + session.getId() + ": " + exception.getMessage());
     }
 
     public void sendMessageToConversation(String conversationId, MessageSentEvent event) {
