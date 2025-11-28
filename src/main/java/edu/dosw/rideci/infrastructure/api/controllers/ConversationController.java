@@ -41,6 +41,10 @@ public class ConversationController {
         return ResponseEntity.ok(resp);
     }
 
+    @GetMapping 
+    public ResponseEntity<List<ConversationResponse>> getAll() {
+        return ResponseEntity.ok(service.getAllConversations());
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ConversationResponse> getConversation(@PathVariable String id) {

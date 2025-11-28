@@ -135,6 +135,12 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
         return convRepo.findById(conversationId)
                 .map(mapper::toConversationResponse)
                 .orElseThrow(() -> new ConversationException("Conversation no encontrada"));
+    }  
+    
+    public List<ConversationResponse> getAllConversations() {
+        return convRepo.findAll().stream()
+                .map(mapper::toConversationResponse)
+                .toList();
     }
 
     @Override
