@@ -26,7 +26,7 @@ public class ConversationController {
     public ResponseEntity<ConversationResponse> create(@RequestBody CreateConversationRequest req) {
 
         CreateConversationCommand command = CreateConversationCommand.builder()
-                .tripId(req.getTripId())
+                .travelId(req.getTripId())
                 .chatType(req.getType())
                 .participants(req.getParticipants())
                 .driverId(req.getDriverId())

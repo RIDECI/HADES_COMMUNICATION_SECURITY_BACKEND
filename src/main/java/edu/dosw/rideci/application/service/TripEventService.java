@@ -25,7 +25,7 @@ public class TripEventService {
         participantIds.add(event.getDriverId());
 
         CreateConversationCommand command = CreateConversationCommand.builder()
-        .tripId(event.getTravelId())
+        .travelId(event.getTravelId())
         .organizerId(event.getOrganizerId())
         .driverId(event.getDriverId())
         .participants(participantIds)

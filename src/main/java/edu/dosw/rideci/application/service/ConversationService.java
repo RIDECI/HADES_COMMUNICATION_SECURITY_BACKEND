@@ -47,7 +47,7 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
     public String createChat(CreateConversationCommand command) {
 
         Conversation conv = new Conversation();
-        conv.setTripId(command.getTripId());
+        conv.setTripId(command.getTravelId());
         conv.setType(command.getChatType());
         conv.setTravelStatus(command.getTravelStatus());
         conv.setOrganizerId(command.getOrganizerId());
