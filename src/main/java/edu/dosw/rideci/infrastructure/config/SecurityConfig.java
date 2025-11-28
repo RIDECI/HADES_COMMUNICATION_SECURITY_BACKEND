@@ -22,10 +22,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            .cors(Customizer.withDefaults()) 
             .csrf(csrf -> csrf.disable())
-            .cors(Customizer.withDefaults())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/conversations/**").permitAll() 
                 .anyRequest().permitAll() 
             )
             .httpBasic(Customizer.withDefaults())
