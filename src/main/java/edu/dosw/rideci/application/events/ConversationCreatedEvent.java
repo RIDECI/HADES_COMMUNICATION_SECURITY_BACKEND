@@ -16,7 +16,7 @@ public class ConversationCreatedEvent {
 
     private String conversationId;
 
-    private Long tripId;
+    private Long travelId;
 
     private List<Long> participants;
 

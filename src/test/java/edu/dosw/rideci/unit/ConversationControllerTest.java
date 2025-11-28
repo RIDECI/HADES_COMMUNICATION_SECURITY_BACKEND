@@ -43,13 +43,13 @@ class ConversationControllerTest {
     void testShouldCreateConversation() throws Exception {
 
         CreateConversationRequest req = new CreateConversationRequest();
-        req.setTripId(50L);
+        req.setTravelId(50L);
         req.setType(TravelType.TRIP);
         req.setParticipants(List.of(1L, 2L));
 
         ConversationResponse fakeResp = new ConversationResponse();
         fakeResp.setId("conv123");
-        fakeResp.setTripId(50L);
+        fakeResp.setTravelId(50L);
 
         Mockito.when(service.createChat(any())).thenReturn("conv123");
         Mockito.when(service.getConversation("conv123")).thenReturn(fakeResp);
@@ -78,7 +78,7 @@ class ConversationControllerTest {
 
         ConversationResponse resp = new ConversationResponse();
         resp.setId("conv222");
-        resp.setTripId(20L);
+        resp.setTravelId(20L);
 
         Mockito.when(service.getConversation("conv222")).thenReturn(resp);
 

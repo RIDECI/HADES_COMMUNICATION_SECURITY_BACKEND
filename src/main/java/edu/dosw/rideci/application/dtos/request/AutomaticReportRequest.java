@@ -10,4 +10,7 @@ public class AutomaticReportRequest {
     private Long tripId;
     private Location location;
     private Long targetId;
+
+    private Long travelId;
+    private Location currentLocation;
 }

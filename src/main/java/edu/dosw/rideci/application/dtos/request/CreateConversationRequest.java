@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 public class CreateConversationRequest {
 
-    private Long tripId;
+    private Long travelId;
     private TravelType type;     
     
     private Long organizerId;    

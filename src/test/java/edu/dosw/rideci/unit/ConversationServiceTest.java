@@ -53,7 +53,7 @@ class ConversationServiceTest {
     void setUp() {
         conversation = new Conversation();
         conversation.setId("abc123");
-        conversation.setTripId(10L);
+        conversation.setTravelId(10L);
         conversation.setParticipants(List.of(1L, 2L));
         conversation.setType(TravelType.TRIP);
         conversation.setActive(true);
@@ -63,7 +63,7 @@ class ConversationServiceTest {
     @Test
     void testShouldCreateChatWhenActive() {
         CreateConversationCommand cmd = mock(CreateConversationCommand.class);
-        when(cmd.getTripId()).thenReturn(1L);
+        when(cmd.getTravelId()).thenReturn(1L);
         when(cmd.getChatType()).thenReturn(TravelType.TRIP);
         when(cmd.getParticipants()).thenReturn(List.of(10L));
         when(cmd.getTravelStatus()).thenReturn(Status.ACTIVE);
@@ -81,7 +81,7 @@ class ConversationServiceTest {
     @Test
     void testShouldcreateChatwhenInCourse() {
         CreateConversationCommand cmd = mock(CreateConversationCommand.class);
-        when(cmd.getTripId()).thenReturn(1L);
+        when(cmd.getTravelId()).thenReturn(1L);
         when(cmd.getChatType()).thenReturn(TravelType.TRIP);
         when(cmd.getParticipants()).thenReturn(List.of(10L));
         when(cmd.getTravelStatus()).thenReturn(Status.IN_COURSE);
@@ -100,7 +100,7 @@ class ConversationServiceTest {
     void testShouldCreateChatWhenCompleted() {
         CreateConversationCommand cmd = mock(CreateConversationCommand.class);
         when(cmd.getTravelStatus()).thenReturn(Status.COMPLETED);
-        when(cmd.getTripId()).thenReturn(1L);
+        when(cmd.getTravelId()).thenReturn(1L);
         when(cmd.getChatType()).thenReturn(TravelType.TRIP);
         when(cmd.getParticipants()).thenReturn(List.of(10L));
 
@@ -118,7 +118,7 @@ class ConversationServiceTest {
     void testShouldCreateChatWhenCancelled() {
         CreateConversationCommand cmd = mock(CreateConversationCommand.class);
         when(cmd.getTravelStatus()).thenReturn(Status.CANCELLED);
-        when(cmd.getTripId()).thenReturn(1L);
+        when(cmd.getTravelId()).thenReturn(1L);
         when(cmd.getChatType()).thenReturn(TravelType.TRIP);
         when(cmd.getParticipants()).thenReturn(List.of(10L));
 
@@ -194,7 +194,7 @@ class ConversationServiceTest {
 
     @Test
     void testShouldUpdateStatus() {
-        when(convRepo.findByTripId(10L)).thenReturn(Optional.of(conversation));
+        when(convRepo.findByTravelId(10L)).thenReturn(Optional.of(conversation));
 
         service.updateStatus(10L, Status.ACTIVE);
 
@@ -205,7 +205,7 @@ class ConversationServiceTest {
 
     @Test
     void testShouldUpdateStatusInCourse() {
-        when(convRepo.findByTripId(10L)).thenReturn(Optional.of(conversation));
+        when(convRepo.findByTravelId(10L)).thenReturn(Optional.of(conversation));
 
         service.updateStatus(10L, Status.IN_COURSE);
 
@@ -216,7 +216,7 @@ class ConversationServiceTest {
 
     @Test
     void testShouldUpdateStatusAndPublishesEvent() {
-        when(convRepo.findByTripId(10L)).thenReturn(Optional.of(conversation));
+        when(convRepo.findByTravelId(10L)).thenReturn(Optional.of(conversation));
 
         service.updateStatus(10L, Status.COMPLETED);
 
@@ -232,7 +232,7 @@ class ConversationServiceTest {
 
     @Test
     void testShouldUpdateStatusWithoutEvent() {
-        when(convRepo.findByTripId(10L)).thenReturn(Optional.of(conversation));
+        when(convRepo.findByTravelId(10L)).thenReturn(Optional.of(conversation));
 
         service.updateStatus(10L, Status.CANCELLED);
 
@@ -243,7 +243,7 @@ class ConversationServiceTest {
 
     @Test
     void testShouldUpdateStatusNoConversation_throwsException() {
-        when(convRepo.findByTripId(999L)).thenReturn(Optional.empty());
+        when(convRepo.findByTravelId(999L)).thenReturn(Optional.empty());
         assertThrows(ConversationException.class, () -> service.updateStatus(999L, Status.ACTIVE));
     }
 

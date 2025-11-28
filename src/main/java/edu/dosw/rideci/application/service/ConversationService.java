@@ -47,7 +47,7 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
     public String createChat(CreateConversationCommand command) {
 
         Conversation conv = new Conversation();
-        conv.setTripId(command.getTripId());
+        conv.setTravelId(command.getTravelId());
         conv.setType(command.getChatType());
         conv.setTravelStatus(command.getTravelStatus());
         conv.setOrganizerId(command.getOrganizerId());
@@ -80,7 +80,7 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
 
         ConversationCreatedEvent event = ConversationCreatedEvent.builder()
                 .conversationId(conv.getId())
-                .tripId(conv.getTripId())
+                .travelId(conv.getTravelId())
                 .participants(finalParticipants)
                 .type(conv.getType().name())
                 .createdAt(LocalDateTime.now())
@@ -140,7 +140,7 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
     @Override
     @Transactional
     public void updateStatus(Long tripId, Status status) {
-        Conversation conv = convRepo.findByTripId(tripId)
+        Conversation conv = convRepo.findByTravelId(tripId)
                 .orElseThrow(() -> new ConversationException(
                         "No existe conversación para el tripId: " + tripId));
 
