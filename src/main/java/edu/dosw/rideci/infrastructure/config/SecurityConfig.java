@@ -17,11 +17,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .cors(Customizer.withDefaults())  
-            .csrf(csrf -> csrf.disable())
+            .csrf(csrf -> csrf.disable()) 
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/ws/**").permitAll() 
-                .anyRequest().permitAll() 
+                .requestMatchers("/ws/**").permitAll()
+                .anyRequest().permitAll()
             )
             .httpBasic(Customizer.withDefaults())
             .formLogin(form -> form.disable());
@@ -48,3 +47,5 @@ public class SecurityConfig {
         return source;
     }
 }
+
+
