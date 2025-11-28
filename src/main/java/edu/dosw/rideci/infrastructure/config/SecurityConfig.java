@@ -20,7 +20,8 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())  
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll()
+                .requestMatchers("/ws/**").permitAll() 
+                .anyRequest().permitAll() 
             )
             .httpBasic(Customizer.withDefaults())
             .formLogin(form -> form.disable());
