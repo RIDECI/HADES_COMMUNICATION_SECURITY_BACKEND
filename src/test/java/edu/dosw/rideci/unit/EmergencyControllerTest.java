@@ -43,7 +43,7 @@ class EmergencyAlertControllerTest {
 
         EmergencyAlertRequest req = new EmergencyAlertRequest();
         req.setUserId(10L);
-        req.setTripId(50L);
+        req.setTravelId(50L);
         req.setCurrentLocation(
                 new Location(1.234, 5.678, "Cra 123 #456")
         );
