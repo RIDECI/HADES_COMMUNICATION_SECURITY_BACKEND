@@ -53,7 +53,7 @@ class ConversationServiceTest {
     void setUp() {
         conversation = new Conversation();
         conversation.setId("abc123");
-        conversation.setTripId(10L);
+        conversation.setTravelId(10L);
         conversation.setParticipants(List.of(1L, 2L));
         conversation.setType(TravelType.TRIP);
         conversation.setActive(true);

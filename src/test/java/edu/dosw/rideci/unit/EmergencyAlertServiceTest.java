@@ -55,7 +55,7 @@ class EmergencyAlertServiceTest {
         entity = new EmergencyAlert();
         entity.setId("alert123");
         entity.setUserId(10L);
-        entity.setTripId(50L);
+        entity.setTravelId(50L);
         entity.setCurrentLocation(location);
         entity.setCreatedAt(LocalDateTime.now());
         entity.setAdditionalInfo("Emergency button activated");

@@ -58,7 +58,7 @@ public class EmergencyAlertController {
 
         emergencyAlertService.activate(
                 requestDTO.getUserId(),
-                requestDTO.getTripId(),
+                requestDTO.getTravelId(),
                 requestDTO.getCurrentLocation()
         );
 

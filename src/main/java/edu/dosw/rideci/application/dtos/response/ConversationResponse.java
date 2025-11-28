@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class ConversationResponse {
     private String id;
-    private Long tripId;
+    private Long travelId;
     private Long organizerId;
     private Long driveId;
     private TravelType type;

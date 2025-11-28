@@ -24,7 +24,7 @@ public class EmergencyAlert {
     @Id
     private String id;
     @Indexed
-    private Long tripId;
+    private Long travelId;
     private String conversationId;
     @Indexed
     private String type;

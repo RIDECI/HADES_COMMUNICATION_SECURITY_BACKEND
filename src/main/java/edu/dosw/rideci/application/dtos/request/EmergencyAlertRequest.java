@@ -7,6 +7,6 @@ import lombok.Data;
 public class EmergencyAlertRequest {
 
     private Long userId;
-    private Long tripId;
+    private Long travelId;
     private Location currentLocation;
 }

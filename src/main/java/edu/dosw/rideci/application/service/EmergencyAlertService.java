@@ -32,7 +32,7 @@ public class EmergencyAlertService implements ActivateEmergencyButtonUseCase {
 
         EmergencyAlertRequest dto = new EmergencyAlertRequest();
         dto.setUserId(userId);
-        dto.setTripId(tripId);
+        dto.setTravelId(tripId);
         dto.setCurrentLocation(currentLocation);
 
         EmergencyAlert alert = mapper.toEntity(dto);
@@ -45,7 +45,7 @@ public class EmergencyAlertService implements ActivateEmergencyButtonUseCase {
 
         EmergencyAlertEvent event = EmergencyAlertEvent.builder()
                 .id(alert.getId())
-                .tripId(alert.getTripId())
+                .travelId(alert.getTravelId())
                 .userId(alert.getUserId())
                 .type("EMERGENCY")
                 .createdAt(alert.getCreatedAt())

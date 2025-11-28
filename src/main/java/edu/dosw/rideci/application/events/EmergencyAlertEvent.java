@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class EmergencyAlertEvent {
     private String id;
 
-    private Long tripId;
+    private Long travelId;
 
     private Long userId;
 
