@@ -7,12 +7,12 @@ import edu.dosw.rideci.application.dtos.request.ManualReportRequest;
 import edu.dosw.rideci.application.dtos.response.ReportResponse;
 import edu.dosw.rideci.application.service.ReportService;
 import edu.dosw.rideci.domain.enums.ReportType;
-import edu.dosw.rideci.infrastructure.api.controllers.ReportController;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -20,12 +20,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@WebMvcTest(ReportController.class)
+@SpringBootTest
+@AutoConfigureMockMvc(addFilters = false)
 class ReportControllerTest {
 
     @Autowired
@@ -37,9 +37,7 @@ class ReportControllerTest {
     @Autowired
     private ObjectMapper mapper;
 
-    // -------------------------------
-    // TEST CREATE MANUAL REPORT
-    // -------------------------------
+
     @Test
     void testCreateManualReport() throws Exception {
 
@@ -50,8 +48,6 @@ class ReportControllerTest {
         req.setTripId(50L);
         req.setLocation(new edu.dosw.rideci.domain.valueobjects.Location(10.0, 20.0, "N"));
 
-        // No need to mock return for void method
-
         String json = mapper.writeValueAsString(req);
 
         mockMvc.perform(post("/reports/manual")
@@ -60,9 +56,6 @@ class ReportControllerTest {
                 .andExpect(status().isOk());
     }
 
-    // -------------------------------
-    // TEST CREATE AUTOMATIC REPORT
-    // -------------------------------
     @Test
     void testCreateAutomaticReport() throws Exception {
 
@@ -80,9 +73,7 @@ class ReportControllerTest {
                 .andExpect(status().isOk());
     }
 
-    // -------------------------------
-    // TEST EMERGENCY BUTTON REPORT
-    // -------------------------------
+
     @Test
     void testActivateEmergencyReport() throws Exception {
 
@@ -99,9 +90,6 @@ class ReportControllerTest {
                 .andExpect(status().isOk());
     }
 
-    // -------------------------------
-    // TEST GET REPORTS BY USER
-    // -------------------------------
     @Test
     void testGetReportsByUser() throws Exception {
 
@@ -132,9 +120,6 @@ class ReportControllerTest {
         assertEquals(2, list.size());
     }
 
-    // -------------------------------
-    // TEST GET REPORTS BY TRIP
-    // -------------------------------
     @Test
     void testGetReportsByTrip() throws Exception {
 
@@ -157,9 +142,6 @@ class ReportControllerTest {
         assertEquals(1, list.size());
     }
 
-    // -------------------------------
-    // TEST GET REPORTS BY TYPE
-    // -------------------------------
     @Test
     void testGetReportsByType() throws Exception {
 

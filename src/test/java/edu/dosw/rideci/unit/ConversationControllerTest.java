@@ -8,12 +8,12 @@ import edu.dosw.rideci.application.dtos.response.MessageResponse;
 import edu.dosw.rideci.application.service.ConversationService;
 import edu.dosw.rideci.domain.entities.Message;
 import edu.dosw.rideci.domain.enums.TravelType;
-import edu.dosw.rideci.infrastructure.api.controllers.ConversationController;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,7 +26,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@WebMvcTest(ConversationController.class)
+@SpringBootTest
+@AutoConfigureMockMvc(addFilters = false)
 class ConversationControllerTest {
 
     @Autowired
