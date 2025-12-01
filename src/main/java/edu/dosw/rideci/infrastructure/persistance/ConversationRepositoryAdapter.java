@@ -32,7 +32,7 @@ public class ConversationRepositoryAdapter implements ConversationRepositoryPort
     }
 
     @Override
-    public Optional<Conversation> findByTravelId(Long tripId) {
+    public Optional<Conversation> findByTravelId(String tripId) {
         return conversationRepository.findByTravelId(tripId);
     }
 

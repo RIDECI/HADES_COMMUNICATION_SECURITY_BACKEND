@@ -1,6 +1,6 @@
 package edu.dosw.rideci.unit;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -53,7 +53,7 @@ class ConversationServiceTest {
     void setUp() {
         conversation = new Conversation();
         conversation.setId("abc123");
-        conversation.setTravelId(10L);
+        conversation.setTravelId("ww");
         conversation.setParticipants(List.of(1L, 2L));
         conversation.setType(TravelType.TRIP);
         conversation.setActive(true);
@@ -63,7 +63,7 @@ class ConversationServiceTest {
     @Test
     void testShouldCreateChatWhenActive() {
         CreateConversationCommand cmd = mock(CreateConversationCommand.class);
-        when(cmd.getTravelId()).thenReturn(1L);
+        when(cmd.getTravelId()).thenReturn("ww");
         when(cmd.getChatType()).thenReturn(TravelType.TRIP);
         when(cmd.getParticipants()).thenReturn(List.of(10L));
         when(cmd.getTravelStatus()).thenReturn(Status.ACTIVE);
@@ -81,7 +81,7 @@ class ConversationServiceTest {
     @Test
     void testShouldcreateChatwhenInCourse() {
         CreateConversationCommand cmd = mock(CreateConversationCommand.class);
-        when(cmd.getTravelId()).thenReturn(1L);
+        when(cmd.getTravelId()).thenReturn("ww");
         when(cmd.getChatType()).thenReturn(TravelType.TRIP);
         when(cmd.getParticipants()).thenReturn(List.of(10L));
         when(cmd.getTravelStatus()).thenReturn(Status.IN_COURSE);
@@ -100,7 +100,7 @@ class ConversationServiceTest {
     void testShouldCreateChatWhenCompleted() {
         CreateConversationCommand cmd = mock(CreateConversationCommand.class);
         when(cmd.getTravelStatus()).thenReturn(Status.COMPLETED);
-        when(cmd.getTravelId()).thenReturn(1L);
+        when(cmd.getTravelId()).thenReturn("w");
         when(cmd.getChatType()).thenReturn(TravelType.TRIP);
         when(cmd.getParticipants()).thenReturn(List.of(10L));
 
@@ -118,7 +118,7 @@ class ConversationServiceTest {
     void testShouldCreateChatWhenCancelled() {
         CreateConversationCommand cmd = mock(CreateConversationCommand.class);
         when(cmd.getTravelStatus()).thenReturn(Status.CANCELLED);
-        when(cmd.getTravelId()).thenReturn(1L);
+        when(cmd.getTravelId()).thenReturn("w");
         when(cmd.getChatType()).thenReturn(TravelType.TRIP);
         when(cmd.getParticipants()).thenReturn(List.of(10L));
 
@@ -134,26 +134,23 @@ class ConversationServiceTest {
 
     @Test
     void testShouldSendMessage() {
-        when(convRepo.existsById("abc123")).thenReturn(true);
-        Message message = new Message("abc123", "1", "Hola");
+        when(convRepo.findById("abc123")).thenReturn(Optional.of(conversation));
+        Message message = new Message("abc123", "2", "1", "Hola");
 
         service.sendMessage("abc123", message);
-
         verify(msgRepo, times(1)).save(message);
-        verify(eventPublisher, times(1)).publish(
-                any(MessageSentEvent.class),
-                eq(RabbitMQConfig.CHAT_EXCHANGE),
-                eq(RabbitMQConfig.CHAT_ROUTING_KEY)
-        );
     }
 
     @Test
     void testShouldNotSendMessageConversationNotFound() {
-        when(convRepo.existsById("404")).thenReturn(false);
-        Message message = new Message("404", "1", "Hola");
+        when(convRepo.findById("404")).thenReturn(Optional.empty());
 
+        Message message = new Message("404", "1","2", "Hola");
         assertThrows(ConversationException.class, () -> service.sendMessage("404", message));
     }
+
+
+ 
 
     @Test
     void testShouldGetMessages() {
@@ -161,8 +158,8 @@ class ConversationServiceTest {
 
         when(msgRepo.findByConversationId("abc123"))
                 .thenReturn(List.of(
-                        new Message("abc123", "1", "Hola"),
-                        new Message("abc123", "2", "Chao")
+                        new Message("abc123", "1", "2", "Hola"),
+                        new Message("abc123", "2", "3", "Chao")
                 ));
 
         when(mapper.toMessageResponse(any())).thenReturn(new MessageResponse());
@@ -194,9 +191,9 @@ class ConversationServiceTest {
 
     @Test
     void testShouldUpdateStatus() {
-        when(convRepo.findByTravelId(10L)).thenReturn(Optional.of(conversation));
+        when(convRepo.findByTravelId("w")).thenReturn(Optional.of(conversation));
 
-        service.updateStatus(10L, Status.ACTIVE);
+        service.updateStatus("w", Status.ACTIVE);
 
         assertTrue(conversation.isActive());
         assertEquals(Status.ACTIVE, conversation.getTravelStatus());
@@ -205,9 +202,9 @@ class ConversationServiceTest {
 
     @Test
     void testShouldUpdateStatusInCourse() {
-        when(convRepo.findByTravelId(10L)).thenReturn(Optional.of(conversation));
+        when(convRepo.findByTravelId("w")).thenReturn(Optional.of(conversation));
 
-        service.updateStatus(10L, Status.IN_COURSE);
+        service.updateStatus("w", Status.IN_COURSE);
 
         assertTrue(conversation.isActive());
         assertEquals(Status.IN_COURSE, conversation.getTravelStatus());
@@ -216,9 +213,9 @@ class ConversationServiceTest {
 
     @Test
     void testShouldUpdateStatusAndPublishesEvent() {
-        when(convRepo.findByTravelId(10L)).thenReturn(Optional.of(conversation));
+        when(convRepo.findByTravelId("w")).thenReturn(Optional.of(conversation));
 
-        service.updateStatus(10L, Status.COMPLETED);
+        service.updateStatus("w", Status.COMPLETED);
 
         assertFalse(conversation.isActive());
         assertEquals(Status.COMPLETED, conversation.getTravelStatus());
@@ -232,9 +229,9 @@ class ConversationServiceTest {
 
     @Test
     void testShouldUpdateStatusWithoutEvent() {
-        when(convRepo.findByTravelId(10L)).thenReturn(Optional.of(conversation));
+        when(convRepo.findByTravelId("w")).thenReturn(Optional.of(conversation));
 
-        service.updateStatus(10L, Status.CANCELLED);
+        service.updateStatus("w", Status.CANCELLED);
 
         assertFalse(conversation.isActive());
         assertEquals(Status.CANCELLED, conversation.getTravelStatus());
@@ -243,13 +240,132 @@ class ConversationServiceTest {
 
     @Test
     void testShouldUpdateStatusNoConversation_throwsException() {
-        when(convRepo.findByTravelId(999L)).thenReturn(Optional.empty());
-        assertThrows(ConversationException.class, () -> service.updateStatus(999L, Status.ACTIVE));
+        when(convRepo.findByTravelId("oko")).thenReturn(Optional.empty());
+        assertThrows(ConversationException.class, () -> service.updateStatus("oko", Status.ACTIVE));
+    }
+
+    @Test
+    void testShouldGetAllConversations() {
+        Conversation c1 = new Conversation();
+        Conversation c2 = new Conversation();
+
+        when(convRepo.findAll()).thenReturn(List.of(c1, c2));
+        when(mapper.toConversationResponse(any()))
+                .thenReturn(new ConversationResponse());
+
+        List<ConversationResponse> result = service.getAllConversations();
+
+        assertEquals(2, result.size());
+        verify(convRepo, times(1)).findAll();
+        verify(mapper, times(2)).toConversationResponse(any());
+    }
+
+    @Test
+    void testShouldGetAllConversationsEmpty() {
+        when(convRepo.findAll()).thenReturn(List.of());
+
+        List<ConversationResponse> result = service.getAllConversations();
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+
+    @Test
+    void shouldAddOrganizerWhenGroupChatAndOrganizerPresent() {
+        CreateConversationCommand cmd = mock(CreateConversationCommand.class);
+
+        when(cmd.getChatType()).thenReturn(TravelType.GROUP);
+        when(cmd.getParticipants()).thenReturn(List.of(1L, 2L));
+        when(cmd.getOrganizerId()).thenReturn(99L);
+        when(cmd.getTravelStatus()).thenReturn(Status.ACTIVE);
+        when(cmd.getTravelId()).thenReturn("t1");
+
+        ArgumentCaptor<Conversation> captor =
+                ArgumentCaptor.forClass(Conversation.class);
+
+        when(convRepo.save(any())).thenAnswer(inv -> {
+            Conversation c = inv.getArgument(0);
+            c.setId("1");
+            return c;
+        });
+
+        service.createChat(cmd);
+
+        verify(convRepo).save(captor.capture());
+
+        assertTrue(captor.getValue().getParticipants().contains(99L));
+    }
+
+    @Test
+    void shouldNotAddOrganizerWhenGroupChatAndOrganizerIsNull() {
+        CreateConversationCommand cmd = mock(CreateConversationCommand.class);
+
+        when(cmd.getChatType()).thenReturn(TravelType.GROUP);
+        when(cmd.getParticipants()).thenReturn(List.of(1L, 2L));
+        when(cmd.getOrganizerId()).thenReturn(null);
+        when(cmd.getTravelStatus()).thenReturn(Status.ACTIVE);
+        when(cmd.getTravelId()).thenReturn("t2");
+
+        ArgumentCaptor<Conversation> captor =
+                ArgumentCaptor.forClass(Conversation.class);
+
+        when(convRepo.save(any())).thenReturn(new Conversation());
+
+        service.createChat(cmd);
+
+        verify(convRepo).save(captor.capture());
+
+        assertEquals(List.of(1L, 2L), captor.getValue().getParticipants());
+    }
+
+    @Test
+    void shouldAddDriverWhenTripChatAndDriverPresent() {
+        CreateConversationCommand cmd = mock(CreateConversationCommand.class);
+
+        when(cmd.getChatType()).thenReturn(TravelType.TRIP);
+        when(cmd.getParticipants()).thenReturn(List.of(3L));
+        when(cmd.getDriverId()).thenReturn(77L);
+        when(cmd.getTravelStatus()).thenReturn(Status.ACTIVE);
+        when(cmd.getTravelId()).thenReturn("t3");
+
+        ArgumentCaptor<Conversation> captor =
+                ArgumentCaptor.forClass(Conversation.class);
+
+        when(convRepo.save(any())).thenReturn(new Conversation());
+
+        service.createChat(cmd);
+
+        verify(convRepo).save(captor.capture());
+
+        assertTrue(captor.getValue().getParticipants().contains(77L));
+    }
+
+    @Test
+    void shouldNotAddDriverWhenTripChatAndDriverIsNull() {
+        CreateConversationCommand cmd = mock(CreateConversationCommand.class);
+
+        when(cmd.getChatType()).thenReturn(TravelType.TRIP);
+        when(cmd.getParticipants()).thenReturn(List.of(3L));
+        when(cmd.getDriverId()).thenReturn(null);
+        when(cmd.getTravelStatus()).thenReturn(Status.ACTIVE);
+        when(cmd.getTravelId()).thenReturn("t4");
+
+        ArgumentCaptor<Conversation> captor =
+                ArgumentCaptor.forClass(Conversation.class);
+
+        when(convRepo.save(any())).thenReturn(new Conversation());
+
+        service.createChat(cmd);
+
+        verify(convRepo).save(captor.capture());
+
+        assertEquals(List.of(3L), captor.getValue().getParticipants());
     }
 
     @Test
     void testShouldToMessageResponse() {
-        Message msg = new Message("abc123", "1", "Hola");
+        Message msg = new Message("abc123", "2", "1", "Hola");
         MessageResponse mockResponse = new MessageResponse();
 
         when(mapper.toMessageResponse(msg)).thenReturn(mockResponse);

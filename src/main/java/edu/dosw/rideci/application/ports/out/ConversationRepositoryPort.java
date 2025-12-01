@@ -12,7 +12,7 @@ public interface ConversationRepositoryPort {
 
     Optional<Conversation> findById(String id);
 
-    Optional<Conversation> findByTravelId(Long tripId);
+    Optional<Conversation> findByTravelId(String tripId);
     
     List<Conversation> findAll();
 }

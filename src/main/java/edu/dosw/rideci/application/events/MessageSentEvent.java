@@ -18,6 +18,7 @@ public class MessageSentEvent {
     private String messageId;
 
     private String senderId;
+    private String receiverId;
 
     private String content;
 

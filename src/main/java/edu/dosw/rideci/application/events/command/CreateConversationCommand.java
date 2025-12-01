@@ -17,7 +17,7 @@ public class CreateConversationCommand {
 
     private Status travelStatus;
 
-    private Long travelId;
+    private String travelId;
 
     private Long organizerId;
     

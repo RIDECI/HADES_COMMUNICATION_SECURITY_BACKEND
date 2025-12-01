@@ -8,12 +8,13 @@ import edu.dosw.rideci.application.dtos.response.MessageResponse;
 import edu.dosw.rideci.application.service.ConversationService;
 import edu.dosw.rideci.domain.entities.Message;
 import edu.dosw.rideci.domain.enums.TravelType;
+import edu.dosw.rideci.infrastructure.api.controllers.ConversationController;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,8 +27,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@WebMvcTest(ConversationController.class)
 @AutoConfigureMockMvc(addFilters = false)
+
 class ConversationControllerTest {
 
     @Autowired
@@ -44,13 +46,13 @@ class ConversationControllerTest {
     void testShouldCreateConversation() throws Exception {
 
         CreateConversationRequest req = new CreateConversationRequest();
-        req.setTravelId(50L);
+        req.setTravelId("prueba");
         req.setType(TravelType.TRIP);
         req.setParticipants(List.of(1L, 2L));
 
         ConversationResponse fakeResp = new ConversationResponse();
         fakeResp.setId("conv123");
-        fakeResp.setTravelId(50L);
+        fakeResp.setTravelId("prueba");
 
         Mockito.when(service.createChat(any())).thenReturn("conv123");
         Mockito.when(service.getConversation("conv123")).thenReturn(fakeResp);
@@ -79,7 +81,7 @@ class ConversationControllerTest {
 
         ConversationResponse resp = new ConversationResponse();
         resp.setId("conv222");
-        resp.setTravelId(20L);
+        resp.setTravelId("prueba20");
 
         Mockito.when(service.getConversation("conv222")).thenReturn(resp);
 
@@ -117,6 +119,28 @@ class ConversationControllerTest {
         List<?> list = mapper.readValue(result, List.class);
         assertEquals(2, list.size());
     }
+
+    @Test
+    void testShouldGetAllConversations() throws Exception {
+
+        ConversationResponse c1 = new ConversationResponse();
+        c1.setId("c1");
+
+        ConversationResponse c2 = new ConversationResponse();
+        c2.setId("c2");
+
+        Mockito.when(service.getAllConversations())
+            .thenReturn(List.of(c1, c2));
+
+        mockMvc.perform(get("/conversations"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value("c1"))
+                .andExpect(jsonPath("$[1].id").value("c2"));
+    }
+
+
 
     @Test
     void testShouldSendMessage() throws Exception {

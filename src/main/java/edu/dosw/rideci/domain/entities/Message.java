@@ -19,12 +19,14 @@ public class Message {
     private final String messageId;
     private final String conversationId;
     private final String senderId;
+    private final String receiverId;
     private final String content;
     private final Date timestamp;
 
-    public Message(String conversationId, String senderId, String content) {
+    public Message(String conversationId, String receiverId, String senderId, String content) {
         this.messageId = UUID.randomUUID().toString();
         this.conversationId = conversationId;
+        this.receiverId = receiverId;
         this.senderId = senderId;
         this.content = content;
         this.timestamp = new Date();

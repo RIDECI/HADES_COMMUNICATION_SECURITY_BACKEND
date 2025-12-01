@@ -38,7 +38,7 @@ class TripEventServiceTest {
     void processTripCreated_ok() {
 
         TravelCreatedEvent event = TravelCreatedEvent.builder()
-                .travelId(50L)
+                .travelId("w")
                 .driverId(7L)
                 .status(Status.ACTIVE)
                 .origin(null)       
@@ -62,7 +62,7 @@ class TripEventServiceTest {
     void processTripFinished_ok() {
 
         TravelCompletedEvent event = TravelCompletedEvent.builder()
-                .travelId(50L)
+                .travelId("w")
                 .driverId(7L)
                 .passengerList(List.of(1L, 2L))
                 .state(Status.COMPLETED)
@@ -74,7 +74,7 @@ class TripEventServiceTest {
         service.processTripFinished(event);
 
         verify(updateConversationStatusUseCase, times(1))
-                .updateStatus(50L, Status.COMPLETED);
+                .updateStatus("w", Status.COMPLETED);
     }
 
 }

@@ -7,12 +7,13 @@ import edu.dosw.rideci.application.dtos.request.ManualReportRequest;
 import edu.dosw.rideci.application.dtos.response.ReportResponse;
 import edu.dosw.rideci.application.service.ReportService;
 import edu.dosw.rideci.domain.enums.ReportType;
+import edu.dosw.rideci.infrastructure.api.controllers.ReportController;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -24,7 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@WebMvcTest(ReportController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class ReportControllerTest {
 

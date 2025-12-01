@@ -59,7 +59,7 @@ public class ConversationController {
     @PostMapping("/{id}/messages")
     public ResponseEntity<MessageResponse> sendMessage(@PathVariable String id, @RequestBody SendMessageRequest req) {
 
-        Message message = new Message(id,req.getSenderId(),req.getContent());
+        Message message = new Message(id, req.getReceiverId(), req.getSenderId(),req.getContent());
 
         service.sendMessage(id, message);
 

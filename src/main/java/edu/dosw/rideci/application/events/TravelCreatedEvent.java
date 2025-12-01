@@ -14,7 +14,7 @@ import lombok.*;
 @Builder
 public class TravelCreatedEvent {
 
-    private Long travelId;
+    private String travelId;
     private Long organizerId;
     private Long driverId;
     

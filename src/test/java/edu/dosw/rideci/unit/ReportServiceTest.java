@@ -3,14 +3,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import edu.dosw.rideci.application.dtos.response.ReportResponse;
 import edu.dosw.rideci.application.mappers.ReportMapper;
 import edu.dosw.rideci.application.ports.out.ReportRepositoryPort;
 import edu.dosw.rideci.application.service.ReportService;
-import edu.dosw.rideci.infrastructure.config.RabbitMQConfig;
 import edu.dosw.rideci.domain.entities.Report;
 import edu.dosw.rideci.domain.enums.ReportType;
 import edu.dosw.rideci.domain.valueobjects.Location;
@@ -37,7 +35,7 @@ class ReportServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        location = new Location(4.123, -74.123,"hola"); // ejemplo de coordenadas
+        location = new Location(4.123, -74.123,"hola"); 
     }
 
     @Test

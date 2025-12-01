@@ -16,6 +16,7 @@ public class MessageResponse {
     private String messageId;
     private String conversationId;
     private String senderId;
+    private String receiverId;
     private String content;
     private Date timestamp;
 }

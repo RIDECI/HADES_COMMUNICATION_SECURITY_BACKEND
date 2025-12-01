@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class TravelCompletedEvent {
-    private Long travelId;
+    private String travelId;
 
     private Long driverId;
 

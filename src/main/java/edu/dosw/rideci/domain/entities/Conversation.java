@@ -18,7 +18,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Conversation {
     @Id
     private String id = UUID.randomUUID().toString();
-    private Long travelId;
+    private String travelId;
     private Long organizerId;
     private Long driverId;
     private TravelType type;

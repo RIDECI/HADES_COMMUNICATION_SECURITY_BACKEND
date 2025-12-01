@@ -16,6 +16,7 @@ import edu.dosw.rideci.domain.entities.Conversation;
 import edu.dosw.rideci.domain.entities.Message;
 import edu.dosw.rideci.domain.enums.Status;
 import edu.dosw.rideci.domain.enums.TravelType;
+
 import edu.dosw.rideci.application.dtos.response.ConversationResponse;
 import edu.dosw.rideci.application.dtos.response.MessageResponse;
 
@@ -35,7 +36,8 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ConversationService implements CreateConversationUseCase, SendMessageUseCase, UpdateConversationStatusUseCase {
+public class ConversationService
+        implements CreateConversationUseCase, SendMessageUseCase, UpdateConversationStatusUseCase {
 
     private final ConversationRepositoryPort convRepo;
     private final MessageRepositoryPort msgRepo;
@@ -53,29 +55,24 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
         conv.setOrganizerId(command.getOrganizerId());
         conv.setDriverId(command.getDriverId());
 
-
-        boolean isActive = command.getTravelStatus() == Status.IN_COURSE ||
-                        command.getTravelStatus() == Status.ACTIVE;
+        boolean isActive = command.getTravelStatus() == Status.IN_COURSE
+                || command.getTravelStatus() == Status.ACTIVE;
 
         conv.setActive(isActive);
 
-        List<Long> finalParticipants;
+        List<Long> finalParticipants = new java.util.ArrayList<>(command.getParticipants());
 
         if (command.getChatType() == TravelType.GROUP) {
-            finalParticipants = new java.util.ArrayList<>(command.getParticipants());
-            if (command.getOrganizerId() != null) {
+            if (command.getOrganizerId() != null && !finalParticipants.contains(command.getOrganizerId())) {
                 finalParticipants.add(command.getOrganizerId());
             }
-
         } else { 
-            finalParticipants = new java.util.ArrayList<>(command.getParticipants());
-            if (command.getDriverId() != null) {
+            if (command.getDriverId() != null && !finalParticipants.contains(command.getDriverId())) {
                 finalParticipants.add(command.getDriverId());
             }
         }
 
         conv.setParticipants(finalParticipants);
-
         convRepo.save(conv);
 
         ConversationCreatedEvent event = ConversationCreatedEvent.builder()
@@ -95,48 +92,110 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
         return conv.getId();
     }
 
+
     @Override
     @Transactional
     public void sendMessage(String conversationId, Message message) {
-        if (!convRepo.existsById(conversationId)) {
-            throw new ConversationException("Conversation no encontrada");
+
+        Conversation conv = convRepo.findById(conversationId)
+                .orElseThrow(() -> new ConversationException("Conversation no encontrada"));
+
+        if (!conv.isActive()) {
+            throw new ConversationException("La conversación no está activa");
         }
 
-        msgRepo.save(message);
+        String senderId = message.getSenderId();
+        String receiverId = message.getReceiverId();
 
-        MessageSentEvent event = MessageSentEvent.builder()
-                .conversationId(conversationId)
-                .messageId(message.getMessageId())
-                .senderId(message.getSenderId())
-                .content(message.getContent())
-                .sentAt(message.getTimestamp().toInstant()
-                        .atZone(java.time.ZoneId.systemDefault())
-                        .toLocalDateTime())
-                .build();
+        boolean senderIsParticipant = conv.getParticipants().stream()
+                .anyMatch(p -> p.toString().equals(senderId));
 
-        eventPublisher.publish(
-                event,
-                RabbitMQConfig.CHAT_EXCHANGE,
-                RabbitMQConfig.CHAT_ROUTING_KEY);
+        if (!senderIsParticipant) {
+            throw new ConversationException("El remitente no pertenece a la conversación");
+        }
+
+        if (conv.getType() == TravelType.TRIP) {
+
+            if (receiverId == null) {
+                throw new ConversationException("receiverId es obligatorio para chats TRIP");
+            }
+
+            boolean receiverIsParticipant = conv.getParticipants().stream()
+                    .anyMatch(p -> p.toString().equals(receiverId));
+
+            if (!receiverIsParticipant) {
+                throw new ConversationException("El receptor no pertenece a la conversación");
+            }
+
+            msgRepo.save(message);
+
+            MessageSentEvent event = MessageSentEvent.builder()
+                    .conversationId(conversationId)
+                    .messageId(message.getMessageId())
+                    .senderId(senderId)
+                    .receiverId(receiverId)
+                    .content(message.getContent())
+                    .sentAt(message.getTimestamp().toInstant()
+                            .atZone(java.time.ZoneId.systemDefault())
+                            .toLocalDateTime())
+                    .build();
+
+            eventPublisher.publish(
+                    event,
+                    RabbitMQConfig.CHAT_EXCHANGE,
+                    RabbitMQConfig.CHAT_ROUTING_KEY
+            );
+
+            return;
+        }
+
+        if (conv.getType() == TravelType.GROUP) {
+
+            msgRepo.save(message);
+
+            for (Long participant : conv.getParticipants()) {
+
+                if (participant.toString().equals(senderId)) {
+                    continue;
+                }
+
+                MessageSentEvent event = MessageSentEvent.builder()
+                        .conversationId(conversationId)
+                        .messageId(message.getMessageId())
+                        .senderId(senderId)
+                        .receiverId(participant.toString())
+                        .content(message.getContent())
+                        .sentAt(message.getTimestamp().toInstant()
+                                .atZone(java.time.ZoneId.systemDefault())
+                                .toLocalDateTime())
+                        .build();
+
+                eventPublisher.publish(
+                        event,
+                        RabbitMQConfig.CHAT_EXCHANGE,
+                        RabbitMQConfig.CHAT_ROUTING_KEY
+                );
+            }
+        }
     }
 
     public List<MessageResponse> getMessages(String conversationId) {
         if (!convRepo.existsById(conversationId)) {
             throw new ConversationException("Conversation no encontrada");
         }
+
         return msgRepo.findByConversationId(conversationId)
                 .stream()
                 .map(mapper::toMessageResponse)
                 .toList();
     }
 
-    
     public ConversationResponse getConversation(String conversationId) {
         return convRepo.findById(conversationId)
                 .map(mapper::toConversationResponse)
                 .orElseThrow(() -> new ConversationException("Conversation no encontrada"));
-    }  
-    
+    }
+
     public List<ConversationResponse> getAllConversations() {
         return convRepo.findAll().stream()
                 .map(mapper::toConversationResponse)
@@ -145,7 +204,8 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
 
     @Override
     @Transactional
-    public void updateStatus(Long tripId, Status status) {
+    public void updateStatus(String tripId, Status status) {
+
         Conversation conv = convRepo.findByTravelId(tripId)
                 .orElseThrow(() -> new ConversationException(
                         "No existe conversación para el tripId: " + tripId));
@@ -166,12 +226,12 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
             eventPublisher.publish(
                     event,
                     RabbitMQConfig.TRIP_EXCHANGE,
-                    RabbitMQConfig.TRIP_FINISHED_ROUTING_KEY);
+                    RabbitMQConfig.TRIP_FINISHED_ROUTING_KEY
+            );
         }
     }
 
     public MessageResponse toMessageResponse(Message message) {
         return mapper.toMessageResponse(message);
     }
-
 }
