@@ -11,6 +11,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.dosw.rideci.application.dtos.response.MessageResponse;
+import edu.dosw.rideci.application.exceptions.ConversationException;
 import edu.dosw.rideci.application.service.ConversationService;
 import edu.dosw.rideci.domain.entities.Message;
 
@@ -38,27 +39,43 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage textMsg) {
         try {
             IncomingMessage incoming = mapper.readValue(textMsg.getPayload(), IncomingMessage.class);
+            var convResponse = conversationService.getConversation(incoming.getConversationId());
+            List<Long> participants = convResponse.getParticipants();
 
-            List<Long> participants = conversationService.getConversation(incoming.getConversationId())
-                                                        .getParticipants();
-
-            Long receiverId = participants.stream()
-                                        .filter(id -> !id.equals(Long.valueOf(incoming.getSenderId())))
-                                        .findFirst()
-                                        .orElse(null);
-
-            if (receiverId == null) {
-                System.err.println("No se encontró destinatario en la conversación: " + incoming.getConversationId());
+            if (convResponse.getType().name().equals("TRIP") && incoming.getReceiverId() != null) {
+                Message message = new Message(
+                        incoming.getConversationId(),
+                        incoming.getReceiverId(),
+                        incoming.getSenderId(),
+                        incoming.getContent()
+                );
+                conversationService.sendMessage(incoming.getConversationId(), message);
+                MessageResponse response = conversationService.toMessageResponse(message);
+                String json = mapper.writeValueAsString(response);
+                List<WebSocketSession> sessions = sessionManager.getSessions(incoming.getReceiverId());
+                if (sessions != null) {
+                    for (WebSocketSession s : sessions) {
+                        if (s.isOpen()) {
+                            s.sendMessage(new TextMessage(json));
+                        }
+                    }
+                }
                 return;
             }
-            Message message = new Message(incoming.getConversationId(), receiverId.toString(), incoming.getSenderId(), incoming.getContent());
-
-            conversationService.sendMessage(incoming.getConversationId(), message);
-
-            MessageResponse response = conversationService.toMessageResponse(message);
-            String json = mapper.writeValueAsString(response);
 
             for (Long participantId : participants) {
+                if (participantId.toString().equals(incoming.getSenderId())) continue;
+
+                Message message = new Message(
+                        incoming.getConversationId(),
+                        participantId.toString(),
+                        incoming.getSenderId(),
+                        incoming.getContent()
+                );
+
+                conversationService.sendMessage(incoming.getConversationId(), message);
+                MessageResponse response = conversationService.toMessageResponse(message);
+                String json = mapper.writeValueAsString(response);
                 List<WebSocketSession> sessions = sessionManager.getSessions(participantId.toString());
                 if (sessions != null) {
                     for (WebSocketSession s : sessions) {
@@ -83,13 +100,15 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     private static class IncomingMessage {
         private String conversationId;
         private String senderId;
-        
+        private String receiverId;
         private String content;
 
         public String getConversationId() { return conversationId; }
         public void setConversationId(String conversationId) { this.conversationId = conversationId; }
         public String getSenderId() { return senderId; }
         public void setSenderId(String senderId) { this.senderId = senderId; }
+        public String getReceiverId() { return receiverId; }
+        public void setReceiverId(String receiverId) { this.receiverId = receiverId; }
         public String getContent() { return content; }
         public void setContent(String content) { this.content = content; }
     }

@@ -11,7 +11,7 @@ public interface ReportRepositoryPort {
 
     List<Report> findByUserId(Long userId);
 
-    List<Report> findByTripId(Long tripId); // si quieres guardar tripId luego
+    List<Report> findByTripId(Long tripId); 
 
     List<Report> findByType(ReportType type);
 
