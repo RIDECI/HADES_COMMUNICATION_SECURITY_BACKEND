@@ -5,8 +5,7 @@ COPY src ./src
 RUN mvn -B clean package -DskipTests
 
 FROM eclipse-temurin:17-jre-jammy
-ARG JAR_FILE=target/*.jar
 WORKDIR /app
-COPY --from=builder /app/${JAR_FILE} app.jar
+COPY --from=builder /app/target/HADES_COMMUNICATION_SECURITY_BACKEND-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","/app/app.jar"]
