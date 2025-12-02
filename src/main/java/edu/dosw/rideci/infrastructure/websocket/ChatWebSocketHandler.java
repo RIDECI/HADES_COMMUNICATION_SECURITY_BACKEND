@@ -11,7 +11,6 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.dosw.rideci.application.dtos.response.MessageResponse;
-import edu.dosw.rideci.application.exceptions.ConversationException;
 import edu.dosw.rideci.application.service.ConversationService;
 import edu.dosw.rideci.domain.entities.Message;
 
@@ -29,72 +28,50 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) {
+    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String userId = (String) session.getAttributes().get("userId");
-        sessionManager.addSession(userId, session);
-        System.out.println("WebSocket conectado: " + userId);
-    }
-
-    @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage textMsg) {
-        try {
-            IncomingMessage incoming = mapper.readValue(textMsg.getPayload(), IncomingMessage.class);
-            var convResponse = conversationService.getConversation(incoming.getConversationId());
-            List<Long> participants = convResponse.getParticipants();
-
-            if (convResponse.getType().name().equals("TRIP") && incoming.getReceiverId() != null) {
-                Message message = new Message(
-                        incoming.getConversationId(),
-                        incoming.getReceiverId(),
-                        incoming.getSenderId(),
-                        incoming.getContent()
-                );
-                conversationService.sendMessage(incoming.getConversationId(), message);
-                MessageResponse response = conversationService.toMessageResponse(message);
-                String json = mapper.writeValueAsString(response);
-                List<WebSocketSession> sessions = sessionManager.getSessions(incoming.getReceiverId());
-                if (sessions != null) {
-                    for (WebSocketSession s : sessions) {
-                        if (s.isOpen()) {
-                            s.sendMessage(new TextMessage(json));
-                        }
-                    }
-                }
-                return;
-            }
-
-            for (Long participantId : participants) {
-                if (participantId.toString().equals(incoming.getSenderId())) continue;
-
-                Message message = new Message(
-                        incoming.getConversationId(),
-                        participantId.toString(),
-                        incoming.getSenderId(),
-                        incoming.getContent()
-                );
-
-                conversationService.sendMessage(incoming.getConversationId(), message);
-                MessageResponse response = conversationService.toMessageResponse(message);
-                String json = mapper.writeValueAsString(response);
-                List<WebSocketSession> sessions = sessionManager.getSessions(participantId.toString());
-                if (sessions != null) {
-                    for (WebSocketSession s : sessions) {
-                        if (s.isOpen()) {
-                            s.sendMessage(new TextMessage(json));
-                        }
-                    }
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (userId != null) {
+            sessionManager.addSession(userId, session);
         }
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+    protected void handleTextMessage(WebSocketSession session, TextMessage textMsg) throws Exception {
+        IncomingMessage incoming = mapper.readValue(textMsg.getPayload(), IncomingMessage.class);
+        if (incoming.getConversationId() == null || incoming.getSenderId() == null || incoming.getContent() == null) return;
+
+        var convResponse = conversationService.getConversation(incoming.getConversationId());
+        List<Long> participants = convResponse.getParticipants();
+
+        if ("TRIP".equals(convResponse.getType())) {
+            if (incoming.getReceiverId() != null && !incoming.getReceiverId().isEmpty()) {
+                sendMessageToUser(incoming.getConversationId(), incoming.getSenderId(), incoming.getReceiverId(), incoming.getContent());
+            }
+        } else if ("GROUP".equals(convResponse.getType())) {
+            for (Long participantId : participants) {
+                if (participantId.toString().equals(incoming.getSenderId())) continue;
+                sendMessageToUser(incoming.getConversationId(), incoming.getSenderId(), participantId.toString(), incoming.getContent());
+            }
+        }
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         String userId = (String) session.getAttributes().get("userId");
-        sessionManager.removeSession(userId, session);
+        if (userId != null) sessionManager.removeSession(userId, session);
+    }
+
+    private void sendMessageToUser(String conversationId, String senderId, String receiverId, String content) throws Exception {
+        Message message = new Message(conversationId, receiverId, senderId, content);
+        conversationService.sendMessage(conversationId, message);
+        MessageResponse response = conversationService.toMessageResponse(message);
+        String json = mapper.writeValueAsString(response);
+        List<WebSocketSession> sessions = sessionManager.getSessions(receiverId);
+        if (sessions != null) {
+            for (WebSocketSession s : sessions) {
+                if (s.isOpen()) s.sendMessage(new TextMessage(json));
+            }
+        }
     }
 
     private static class IncomingMessage {
