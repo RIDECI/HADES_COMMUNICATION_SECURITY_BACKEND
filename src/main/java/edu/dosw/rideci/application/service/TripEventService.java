@@ -21,8 +21,14 @@ public class TripEventService {
     
     public void processTripCreated(TravelCreatedEvent event) {
 
-        var participantIds = new ArrayList<Long>(event.getPassengersId());
-        participantIds.add(event.getDriverId());
+        var participantIds = event.getPassengersId() != null
+                ? new ArrayList<>(event.getPassengersId())
+                : new ArrayList<Long>();
+
+        if (event.getDriverId() != null) {
+            participantIds.add(event.getDriverId());
+        }
+
 
         CreateConversationCommand command = CreateConversationCommand.builder()
             .travelId(event.getTravelId())
