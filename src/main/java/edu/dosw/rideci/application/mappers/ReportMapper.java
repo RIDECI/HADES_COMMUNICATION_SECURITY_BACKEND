@@ -10,7 +10,6 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface ReportMapper {
 
-
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "type", constant = "MANUAL")
     @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")

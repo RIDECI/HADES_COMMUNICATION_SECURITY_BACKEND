@@ -39,7 +39,7 @@ public class ReportService implements
         AutomaticReportRequest dto = new AutomaticReportRequest();
         dto.setUserId(userId);
         dto.setTripId(tripId);
-        dto.setLocation(location);
+        dto.setCurrentLocation(location);
         dto.setTargetId(targetId);
 
         Report report = mapper.toAutomaticEntity(dto);

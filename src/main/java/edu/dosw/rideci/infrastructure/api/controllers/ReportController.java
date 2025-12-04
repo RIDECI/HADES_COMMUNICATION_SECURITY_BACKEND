@@ -48,7 +48,7 @@ public class ReportController {
     public void createAutomatic(@RequestBody AutomaticReportRequest request) {
         reportService.deviationDetected(
                 request.getUserId(),
-                request.getLocation(),
+                request.getCurrentLocation(),
                 request.getTripId(),
                 request.getTargetId()
         );
