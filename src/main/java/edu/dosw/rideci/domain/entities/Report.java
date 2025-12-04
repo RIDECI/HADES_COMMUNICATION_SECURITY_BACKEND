@@ -1,5 +1,7 @@
 package edu.dosw.rideci.domain.entities;
 
+import edu.dosw.rideci.domain.enums.ManualReason;
+import edu.dosw.rideci.domain.enums.ReportStatus;
 import edu.dosw.rideci.domain.enums.ReportType;
 import edu.dosw.rideci.domain.valueobjects.Location;
 import lombok.*;
@@ -27,6 +29,8 @@ public class Report {
     private Location location;
 
     private String description;
-
+    private ReportStatus status;
     private LocalDateTime createdAt;
+    private ManualReason manualReason;  // null para AUTOMATIC y EMERGENCY
+    private String evidence;
 }

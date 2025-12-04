@@ -8,9 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @EnableRabbit
 
 public class HadesCommunicationSecurityBackendApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(HadesCommunicationSecurityBackendApplication.class, args);
 	}
-
 }

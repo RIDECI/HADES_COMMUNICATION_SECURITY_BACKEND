@@ -5,11 +5,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
+import edu.dosw.rideci.application.dtos.request.AutomaticReportRequest;
+import edu.dosw.rideci.application.dtos.request.EmergencyReportRequest;
+import edu.dosw.rideci.application.dtos.request.ManualReportRequest;
 import edu.dosw.rideci.application.dtos.response.ReportResponse;
 import edu.dosw.rideci.application.mappers.ReportMapper;
 import edu.dosw.rideci.application.ports.out.ReportRepositoryPort;
 import edu.dosw.rideci.application.service.ReportService;
 import edu.dosw.rideci.domain.entities.Report;
+import edu.dosw.rideci.domain.enums.ReportStatus;
 import edu.dosw.rideci.domain.enums.ReportType;
 import edu.dosw.rideci.domain.valueobjects.Location;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,19 +39,59 @@ class ReportServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        location = new Location(4.123, -74.123,"hola"); 
+        location = new Location(4.123, -74.123,"hola");
+
+
+        when(mapper.toAutomaticEntity(any())).thenAnswer(invocation -> {
+            AutomaticReportRequest dto = invocation.getArgument(0);
+            return Report.builder()
+                    .userId(dto.getUserId())
+                    .tripId(dto.getTripId())
+                    .targetId(dto.getTargetId())
+                    .location(dto.getCurrentLocation())
+                    .type(ReportType.DETOUR)
+                    .description("route deviation")
+                    .build();
+        });
+
+        when(mapper.toManualEntity(any())).thenAnswer(invocation -> {
+            ManualReportRequest dto = invocation.getArgument(0);
+            return Report.builder()
+                    .userId(dto.getUserId())
+                    .tripId(dto.getTripId())
+                    .targetId(dto.getTargetId())
+                    .location(dto.getLocation())
+                    .type(ReportType.MANUAL)
+                    .description(dto.getDescription())
+                    .build();
+        });
+
+        when(mapper.toEmergencyEntity(any())).thenAnswer(invocation -> {
+            EmergencyReportRequest dto = invocation.getArgument(0);
+            return Report.builder()
+                    .userId(dto.getUserId())
+                    .tripId(dto.getTripId())
+                    .location(dto.getLocation())
+                    .type(ReportType.EMERGENCY)
+                    .description("Emergency button activated")
+                    .build();
+        });
+
+
+        when(reportRepo.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
     }
+
 
     @Test
     void testCreateAutomaticReport() {
-        service.createAutomatic(1L, location, 100L, 200L);
+        service.deviationDetected(1L, location, 100L, 200L);
 
         ArgumentCaptor<Report> captor = ArgumentCaptor.forClass(Report.class);
         verify(reportRepo, times(1)).save(captor.capture());
 
         Report saved = captor.getValue();
         assertEquals(1L, saved.getUserId());
-        assertEquals(ReportType.AUTOMATIC, saved.getType());
+        assertEquals(ReportType.DETOUR, saved.getType());
         assertEquals(location, saved.getLocation());
         assertEquals("route deviation", saved.getDescription());
     }
@@ -86,7 +130,7 @@ class ReportServiceTest {
 
     @Test
     void testGetReportsByUser() {
-        Report report1 = Report.builder().userId(1L).type(ReportType.AUTOMATIC).build();
+        Report report1 = Report.builder().userId(1L).type(ReportType.DETOUR).build();
         Report report2 = Report.builder().userId(1L).type(ReportType.MANUAL).build();
 
         when(reportRepo.findByUserId(1L)).thenReturn(List.of(report1, report2));
@@ -99,7 +143,7 @@ class ReportServiceTest {
 
     @Test
     void testGetReportsByTrip() {
-        Report report = Report.builder().tripId(100L).type(ReportType.AUTOMATIC).build();
+        Report report = Report.builder().tripId(100L).type(ReportType.DETOUR).build();
 
         when(reportRepo.findByTripId(100L)).thenReturn(List.of(report));
         when(mapper.toDTO(any())).thenReturn(new ReportResponse());
@@ -120,4 +164,33 @@ class ReportServiceTest {
         assertEquals(1, results.size());
         verify(reportRepo, times(1)).findByType(ReportType.EMERGENCY);
     }
+    @Test
+    void testGetReportsByStatus() {
+        Report report1 = Report.builder().status(ReportStatus.PENDING).build();
+        Report report2 = Report.builder().status(ReportStatus.PENDING).build();
+
+        when(reportRepo.findByStatus(ReportStatus.PENDING))
+                .thenReturn(List.of(report1, report2));
+        when(mapper.toDTO(any())).thenReturn(new ReportResponse());
+
+        List<ReportResponse> results = service.getReportsByStatus(ReportStatus.PENDING);
+
+        assertEquals(2, results.size());
+        verify(reportRepo, times(1)).findByStatus(ReportStatus.PENDING);
+    }
+
+    @Test
+    void testGetAllReports() {
+        Report report1 = Report.builder().id("r1").build();
+        Report report2 = Report.builder().id("r2").build();
+
+        when(reportRepo.findAllReports()).thenReturn(List.of(report1, report2));
+        when(mapper.toDTO(any())).thenReturn(new ReportResponse());
+
+        List<ReportResponse> results = service.getAllReports();
+
+        assertEquals(2, results.size());
+        verify(reportRepo, times(1)).findAllReports();
+    }
+
 }

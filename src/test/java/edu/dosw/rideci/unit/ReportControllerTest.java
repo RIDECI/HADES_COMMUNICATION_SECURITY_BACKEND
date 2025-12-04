@@ -6,6 +6,7 @@ import edu.dosw.rideci.application.dtos.request.EmergencyReportRequest;
 import edu.dosw.rideci.application.dtos.request.ManualReportRequest;
 import edu.dosw.rideci.application.dtos.response.ReportResponse;
 import edu.dosw.rideci.application.service.ReportService;
+import edu.dosw.rideci.domain.enums.ReportStatus;
 import edu.dosw.rideci.domain.enums.ReportType;
 import edu.dosw.rideci.infrastructure.api.controllers.ReportController;
 
@@ -64,11 +65,11 @@ class ReportControllerTest {
         req.setUserId(1002L);
 
         req.setTripId(51L);
-        req.setLocation(new edu.dosw.rideci.domain.valueobjects.Location(30.0, 40.0, "E"));
+        req.setCurrentLocation(new edu.dosw.rideci.domain.valueobjects.Location(30.0, 40.0, "E"));
 
         String json = mapper.writeValueAsString(req);
 
-        mockMvc.perform(post("/reports/automatic")
+        mockMvc.perform(post("/reports/detour")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk());
@@ -103,7 +104,7 @@ class ReportControllerTest {
         ReportResponse r2 = new ReportResponse();
         r2.setId("r2");
         r2.setUserId(1001L);
-        r2.setType(ReportType.AUTOMATIC);
+        r2.setType(ReportType.DETOUR);
         r2.setCreatedAt(LocalDateTime.now());
 
         Mockito.when(reportService.getReportsByUser(1001L))
@@ -148,15 +149,15 @@ class ReportControllerTest {
 
         ReportResponse r = new ReportResponse();
         r.setId("r4");
-        r.setType(ReportType.AUTOMATIC);
+        r.setType(ReportType.DETOUR);
 
-        Mockito.when(reportService.getReportsByType(ReportType.AUTOMATIC))
+        Mockito.when(reportService.getReportsByType(ReportType.DETOUR))
                 .thenReturn(List.of(r));
 
-        String result = mockMvc.perform(get("/reports/type/AUTOMATIC"))
+        String result = mockMvc.perform(get("/reports/type/DETOUR"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value("r4"))
-                .andExpect(jsonPath("$[0].type").value("AUTOMATIC"))
+                .andExpect(jsonPath("$[0].type").value("DETOUR"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -164,4 +165,57 @@ class ReportControllerTest {
         List<?> list = mapper.readValue(result, List.class);
         assertEquals(1, list.size());
     }
+    @Test
+    void testGetReportsByStatus() throws Exception {
+
+        ReportResponse r = new ReportResponse();
+        r.setId("r5");
+        r.setStatus(ReportStatus.PENDING); // debes tener el campo status en ReportResponse
+
+        Mockito.when(reportService.getReportsByStatus(ReportStatus.PENDING))
+                .thenReturn(List.of(r));
+
+        String result = mockMvc.perform(get("/reports/status/PENDING"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value("r5"))
+                .andExpect(jsonPath("$[0].status").value("PENDING"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        List<?> list = mapper.readValue(result, List.class);
+        assertEquals(1, list.size());
+    }
+
+    @Test
+    void testGetAllReports() throws Exception {
+
+        ReportResponse r1 = new ReportResponse();
+        r1.setId("r10");
+        r1.setType(ReportType.MANUAL);
+        r1.setStatus(ReportStatus.PENDING);
+
+        ReportResponse r2 = new ReportResponse();
+        r2.setId("r11");
+        r2.setType(ReportType.EMERGENCY);
+        r2.setStatus(ReportStatus.APPROVED);
+
+        Mockito.when(reportService.getAllReports())
+                .thenReturn(List.of(r1, r2));
+
+        String result = mockMvc.perform(get("/reports"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value("r10"))
+                .andExpect(jsonPath("$[1].id").value("r11"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        List<?> list = mapper.readValue(result, List.class);
+        assertEquals(2, list.size());
+    }
+
+
+
+
 }

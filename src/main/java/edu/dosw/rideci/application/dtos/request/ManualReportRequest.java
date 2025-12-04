@@ -1,5 +1,6 @@
 package edu.dosw.rideci.application.dtos.request;
 
+import edu.dosw.rideci.domain.enums.ManualReason;
 import edu.dosw.rideci.domain.valueobjects.Location;
 import lombok.Data;
 
@@ -10,5 +11,6 @@ public class ManualReportRequest {
     private Long targetId;
     private Location location;
     private String description;
-
+    private ManualReason reason;
+    private String evidence;
 }

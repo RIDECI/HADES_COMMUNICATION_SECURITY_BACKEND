@@ -8,9 +8,7 @@ import lombok.Data;
 public class AutomaticReportRequest {
     private Long userId;
     private Long tripId;
-    private Location location;
     private Long targetId;
-
     private Long travelId;
     private Location currentLocation;
 }
