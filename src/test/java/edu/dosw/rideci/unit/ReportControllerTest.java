@@ -64,7 +64,7 @@ class ReportControllerTest {
         req.setUserId(1002L);
 
         req.setTripId(51L);
-        req.setLocation(new edu.dosw.rideci.domain.valueobjects.Location(30.0, 40.0, "E"));
+        req.setCurrentLocation(new edu.dosw.rideci.domain.valueobjects.Location(30.0, 40.0, "E"));
 
         String json = mapper.writeValueAsString(req);
 
