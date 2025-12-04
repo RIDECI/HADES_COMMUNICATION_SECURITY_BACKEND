@@ -40,14 +40,14 @@ class ReportServiceTest {
 
     @Test
     void testCreateAutomaticReport() {
-        service.createAutomatic(1L, location, 100L, 200L);
+        service.deviationDetected(1L, location, 100L, 200L);
 
         ArgumentCaptor<Report> captor = ArgumentCaptor.forClass(Report.class);
         verify(reportRepo, times(1)).save(captor.capture());
 
         Report saved = captor.getValue();
         assertEquals(1L, saved.getUserId());
-        assertEquals(ReportType.AUTOMATIC, saved.getType());
+        assertEquals(ReportType.DETOUR, saved.getType());
         assertEquals(location, saved.getLocation());
         assertEquals("route deviation", saved.getDescription());
     }
@@ -86,7 +86,7 @@ class ReportServiceTest {
 
     @Test
     void testGetReportsByUser() {
-        Report report1 = Report.builder().userId(1L).type(ReportType.AUTOMATIC).build();
+        Report report1 = Report.builder().userId(1L).type(ReportType.DETOUR).build();
         Report report2 = Report.builder().userId(1L).type(ReportType.MANUAL).build();
 
         when(reportRepo.findByUserId(1L)).thenReturn(List.of(report1, report2));
@@ -99,7 +99,7 @@ class ReportServiceTest {
 
     @Test
     void testGetReportsByTrip() {
-        Report report = Report.builder().tripId(100L).type(ReportType.AUTOMATIC).build();
+        Report report = Report.builder().tripId(100L).type(ReportType.DETOUR).build();
 
         when(reportRepo.findByTripId(100L)).thenReturn(List.of(report));
         when(mapper.toDTO(any())).thenReturn(new ReportResponse());

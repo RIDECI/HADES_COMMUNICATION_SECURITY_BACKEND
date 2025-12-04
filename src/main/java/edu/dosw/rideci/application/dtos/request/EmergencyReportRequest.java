@@ -9,4 +9,5 @@ public class EmergencyReportRequest {
     private Long tripId;
     private Location location;
     private Long targetId;
+
 }

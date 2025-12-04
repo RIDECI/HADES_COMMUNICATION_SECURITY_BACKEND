@@ -2,6 +2,7 @@ package edu.dosw.rideci.application.ports.out;
 
 import edu.dosw.rideci.domain.entities.Report;
 
+import edu.dosw.rideci.domain.enums.ReportStatus;
 import edu.dosw.rideci.domain.enums.ReportType;
 
 import java.util.List;
@@ -16,4 +17,5 @@ public interface ReportRepositoryPort {
     List<Report> findByType(ReportType type);
 
     List<Report> findAllReports();
+    List<Report> findByStatus(ReportStatus status);
 }

@@ -1,5 +1,6 @@
 package edu.dosw.rideci.application.events;
 
+import edu.dosw.rideci.domain.enums.ReportStatus;
 import edu.dosw.rideci.domain.enums.ReportType;
 import edu.dosw.rideci.domain.valueobjects.Location;
 import lombok.Builder;
@@ -18,4 +19,6 @@ public class ReportCreatedEvent {
     private Location location;
     private String description;
     private LocalDateTime createdAt;
+    private ReportStatus status;
+    private String evidence;
 }

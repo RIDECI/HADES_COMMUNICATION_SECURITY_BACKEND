@@ -1,6 +1,7 @@
 package edu.dosw.rideci.application.dtos.response;
 
 
+import edu.dosw.rideci.domain.enums.ReportStatus;
 import edu.dosw.rideci.domain.enums.ReportType;
 import edu.dosw.rideci.domain.valueobjects.Location;
 import lombok.Data;
@@ -20,5 +21,8 @@ public class ReportResponse {
     private Location location;
     private String description;
     private LocalDateTime createdAt;
+    private ReportStatus status;
+    private String evidence;
+
 }
 

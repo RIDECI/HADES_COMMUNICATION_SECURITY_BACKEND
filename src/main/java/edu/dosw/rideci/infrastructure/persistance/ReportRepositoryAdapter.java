@@ -4,6 +4,7 @@ package edu.dosw.rideci.infrastructure.persistance;
 import edu.dosw.rideci.application.ports.out.ReportRepositoryPort;
 import edu.dosw.rideci.domain.entities.Report;
 
+import edu.dosw.rideci.domain.enums.ReportStatus;
 import edu.dosw.rideci.domain.enums.ReportType;
 import edu.dosw.rideci.infrastructure.repositories.ReportRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,10 @@ public class ReportRepositoryAdapter implements ReportRepositoryPort {
     public List<Report> findByTripId(Long tripId) {
         return repository.findByTripId(tripId);
     }
+
+    @Override
+    public List<Report> findByStatus(ReportStatus status) {
+        return repository.findByStatus(status);}
 }
 
 

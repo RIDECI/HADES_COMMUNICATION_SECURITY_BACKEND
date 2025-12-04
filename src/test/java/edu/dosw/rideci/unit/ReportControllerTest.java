@@ -103,7 +103,7 @@ class ReportControllerTest {
         ReportResponse r2 = new ReportResponse();
         r2.setId("r2");
         r2.setUserId(1001L);
-        r2.setType(ReportType.AUTOMATIC);
+        r2.setType(ReportType.DETOUR);
         r2.setCreatedAt(LocalDateTime.now());
 
         Mockito.when(reportService.getReportsByUser(1001L))
@@ -148,9 +148,9 @@ class ReportControllerTest {
 
         ReportResponse r = new ReportResponse();
         r.setId("r4");
-        r.setType(ReportType.AUTOMATIC);
+        r.setType(ReportType.DETOUR);
 
-        Mockito.when(reportService.getReportsByType(ReportType.AUTOMATIC))
+        Mockito.when(reportService.getReportsByType(ReportType.DETOUR))
                 .thenReturn(List.of(r));
 
         String result = mockMvc.perform(get("/reports/type/AUTOMATIC"))
