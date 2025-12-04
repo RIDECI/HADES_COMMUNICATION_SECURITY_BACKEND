@@ -68,7 +68,7 @@ class ReportControllerTest {
 
         String json = mapper.writeValueAsString(req);
 
-        mockMvc.perform(post("/reports/automatic")
+        mockMvc.perform(post("/reports/detour")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk());
@@ -153,10 +153,10 @@ class ReportControllerTest {
         Mockito.when(reportService.getReportsByType(ReportType.DETOUR))
                 .thenReturn(List.of(r));
 
-        String result = mockMvc.perform(get("/reports/type/AUTOMATIC"))
+        String result = mockMvc.perform(get("/reports/type/DETOUR"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value("r4"))
-                .andExpect(jsonPath("$[0].type").value("AUTOMATIC"))
+                .andExpect(jsonPath("$[0].type").value("DETOUR"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -164,4 +164,6 @@ class ReportControllerTest {
         List<?> list = mapper.readValue(result, List.class);
         assertEquals(1, list.size());
     }
+
+
 }

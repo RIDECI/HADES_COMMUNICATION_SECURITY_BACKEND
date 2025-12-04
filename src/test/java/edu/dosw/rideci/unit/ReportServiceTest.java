@@ -5,6 +5,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
+import edu.dosw.rideci.application.dtos.request.AutomaticReportRequest;
+import edu.dosw.rideci.application.dtos.request.EmergencyReportRequest;
+import edu.dosw.rideci.application.dtos.request.ManualReportRequest;
 import edu.dosw.rideci.application.dtos.response.ReportResponse;
 import edu.dosw.rideci.application.mappers.ReportMapper;
 import edu.dosw.rideci.application.ports.out.ReportRepositoryPort;
@@ -35,8 +38,48 @@ class ReportServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        location = new Location(4.123, -74.123,"hola"); 
+        location = new Location(4.123, -74.123,"hola");
+
+
+        when(mapper.toAutomaticEntity(any())).thenAnswer(invocation -> {
+            AutomaticReportRequest dto = invocation.getArgument(0);
+            return Report.builder()
+                    .userId(dto.getUserId())
+                    .tripId(dto.getTripId())
+                    .targetId(dto.getTargetId())
+                    .location(dto.getCurrentLocation())
+                    .type(ReportType.DETOUR)
+                    .description("route deviation")
+                    .build();
+        });
+
+        when(mapper.toManualEntity(any())).thenAnswer(invocation -> {
+            ManualReportRequest dto = invocation.getArgument(0);
+            return Report.builder()
+                    .userId(dto.getUserId())
+                    .tripId(dto.getTripId())
+                    .targetId(dto.getTargetId())
+                    .location(dto.getLocation())
+                    .type(ReportType.MANUAL)
+                    .description(dto.getDescription())
+                    .build();
+        });
+
+        when(mapper.toEmergencyEntity(any())).thenAnswer(invocation -> {
+            EmergencyReportRequest dto = invocation.getArgument(0);
+            return Report.builder()
+                    .userId(dto.getUserId())
+                    .tripId(dto.getTripId())
+                    .location(dto.getLocation())
+                    .type(ReportType.EMERGENCY)
+                    .description("Emergency button activated")
+                    .build();
+        });
+
+
+        when(reportRepo.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
     }
+
 
     @Test
     void testCreateAutomaticReport() {

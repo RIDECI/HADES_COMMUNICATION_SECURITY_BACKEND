@@ -44,7 +44,7 @@ public class ReportController {
             summary = "Create an automatic report",
             description = "Create a system-generated automatic report (detour or location-based event)."
     )
-    @PostMapping("/automatic")
+    @PostMapping("/detour")
     public void createAutomatic(@RequestBody AutomaticReportRequest request) {
         reportService.deviationDetected(
                 request.getUserId(),
