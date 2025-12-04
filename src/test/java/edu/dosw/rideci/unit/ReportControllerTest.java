@@ -6,6 +6,7 @@ import edu.dosw.rideci.application.dtos.request.EmergencyReportRequest;
 import edu.dosw.rideci.application.dtos.request.ManualReportRequest;
 import edu.dosw.rideci.application.dtos.response.ReportResponse;
 import edu.dosw.rideci.application.service.ReportService;
+import edu.dosw.rideci.domain.enums.ReportStatus;
 import edu.dosw.rideci.domain.enums.ReportType;
 import edu.dosw.rideci.infrastructure.api.controllers.ReportController;
 
@@ -164,6 +165,57 @@ class ReportControllerTest {
         List<?> list = mapper.readValue(result, List.class);
         assertEquals(1, list.size());
     }
+    @Test
+    void testGetReportsByStatus() throws Exception {
+
+        ReportResponse r = new ReportResponse();
+        r.setId("r5");
+        r.setStatus(ReportStatus.PENDING); // debes tener el campo status en ReportResponse
+
+        Mockito.when(reportService.getReportsByStatus(ReportStatus.PENDING))
+                .thenReturn(List.of(r));
+
+        String result = mockMvc.perform(get("/reports/status/PENDING"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value("r5"))
+                .andExpect(jsonPath("$[0].status").value("PENDING"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        List<?> list = mapper.readValue(result, List.class);
+        assertEquals(1, list.size());
+    }
+
+    @Test
+    void testGetAllReports() throws Exception {
+
+        ReportResponse r1 = new ReportResponse();
+        r1.setId("r10");
+        r1.setType(ReportType.MANUAL);
+        r1.setStatus(ReportStatus.PENDING);
+
+        ReportResponse r2 = new ReportResponse();
+        r2.setId("r11");
+        r2.setType(ReportType.EMERGENCY);
+        r2.setStatus(ReportStatus.APPROVED);
+
+        Mockito.when(reportService.getAllReports())
+                .thenReturn(List.of(r1, r2));
+
+        String result = mockMvc.perform(get("/reports"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value("r10"))
+                .andExpect(jsonPath("$[1].id").value("r11"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        List<?> list = mapper.readValue(result, List.class);
+        assertEquals(2, list.size());
+    }
+
+
 
 
 }

@@ -13,6 +13,7 @@ import edu.dosw.rideci.application.mappers.ReportMapper;
 import edu.dosw.rideci.application.ports.out.ReportRepositoryPort;
 import edu.dosw.rideci.application.service.ReportService;
 import edu.dosw.rideci.domain.entities.Report;
+import edu.dosw.rideci.domain.enums.ReportStatus;
 import edu.dosw.rideci.domain.enums.ReportType;
 import edu.dosw.rideci.domain.valueobjects.Location;
 import org.junit.jupiter.api.BeforeEach;
@@ -163,4 +164,33 @@ class ReportServiceTest {
         assertEquals(1, results.size());
         verify(reportRepo, times(1)).findByType(ReportType.EMERGENCY);
     }
+    @Test
+    void testGetReportsByStatus() {
+        Report report1 = Report.builder().status(ReportStatus.PENDING).build();
+        Report report2 = Report.builder().status(ReportStatus.PENDING).build();
+
+        when(reportRepo.findByStatus(ReportStatus.PENDING))
+                .thenReturn(List.of(report1, report2));
+        when(mapper.toDTO(any())).thenReturn(new ReportResponse());
+
+        List<ReportResponse> results = service.getReportsByStatus(ReportStatus.PENDING);
+
+        assertEquals(2, results.size());
+        verify(reportRepo, times(1)).findByStatus(ReportStatus.PENDING);
+    }
+
+    @Test
+    void testGetAllReports() {
+        Report report1 = Report.builder().id("r1").build();
+        Report report2 = Report.builder().id("r2").build();
+
+        when(reportRepo.findAllReports()).thenReturn(List.of(report1, report2));
+        when(mapper.toDTO(any())).thenReturn(new ReportResponse());
+
+        List<ReportResponse> results = service.getAllReports();
+
+        assertEquals(2, results.size());
+        verify(reportRepo, times(1)).findAllReports();
+    }
+
 }
