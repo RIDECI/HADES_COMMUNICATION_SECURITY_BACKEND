@@ -33,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.HashSet;
 
 @Service
 @RequiredArgsConstructor
@@ -57,37 +58,37 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
         boolean isActive = command.getTravelStatus() == Status.IN_COURSE || command.getTravelStatus() == Status.ACTIVE;
         conv.setActive(isActive);
 
-        List<Long> finalParticipants = new java.util.ArrayList<>();
+        HashSet<Long> participantSet = new HashSet<>();
         
         if (command.getParticipants() != null) {
-            for (Long participant : command.getParticipants()) {
-                if (!finalParticipants.contains(participant)) {
-                    finalParticipants.add(participant);
+            participantSet.addAll(command.getParticipants());
+        }
+
+        if (command.getChatType() == TravelType.TRIP) {
+            if (command.getDriverId() == null) {
+                throw new ConversationException("DriverId es requerido para chats TRIP");
+            }
+            
+            if (command.getParticipants() != null) {
+                boolean driverIsPassenger = command.getParticipants().contains(command.getDriverId());
+                if (driverIsPassenger) {
+                    throw new ConversationException("El conductor no puede estar en la lista de pasajeros");
                 }
             }
         }
 
-        if (command.getChatType() == TravelType.TRIP && command.getDriverId() != null) {
-            if (command.getParticipants() != null && command.getParticipants().contains(command.getDriverId())) {
-                throw new ConversationException("El conductor no puede ser también un pasajero en el viaje");
+        List<Long> finalParticipants = new java.util.ArrayList<>(participantSet);
+        
+        if (command.getChatType() == TravelType.TRIP) {
+            if (finalParticipants.isEmpty()) {
+                throw new ConversationException("Un chat TRIP debe tener al menos 1 pasajero");
             }
             
-            if (!finalParticipants.contains(command.getDriverId())) {
-                finalParticipants.add(command.getDriverId());
+            finalParticipants.add(command.getDriverId());
+        } else if (command.getChatType() == TravelType.GROUP) {
+            if (finalParticipants.size() < 2) {
+                throw new ConversationException("Un chat GROUP debe tener al menos 2 participantes");
             }
-        }
-        else if (command.getChatType() == TravelType.GROUP && command.getOrganizerId() != null) {
-            if (command.getParticipants() != null && command.getParticipants().contains(command.getOrganizerId())) {
-                throw new ConversationException("El organizador no puede ser también un participante en el grupo");
-            }
-        
-            if (!finalParticipants.contains(command.getOrganizerId())) {
-                finalParticipants.add(command.getOrganizerId());
-            }
-        }
-
-        if (finalParticipants.size() < 2) {
-            throw new ConversationException("Una conversación debe tener al menos 2 participantes");
         }
 
         conv.setParticipants(finalParticipants);
