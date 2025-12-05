@@ -61,19 +61,17 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
         HashSet<Long> participantSet = new HashSet<>();
         
         if (command.getParticipants() != null) {
-            participantSet.addAll(command.getParticipants());
+            for (Long participant : command.getParticipants()) {
+                if (command.getDriverId() != null && participant.equals(command.getDriverId())) {
+                    continue;
+                }
+                participantSet.add(participant);
+            }
         }
 
         if (command.getChatType() == TravelType.TRIP) {
             if (command.getDriverId() == null) {
                 throw new ConversationException("DriverId es requerido para chats TRIP");
-            }
-            
-            if (command.getParticipants() != null) {
-                boolean driverIsPassenger = command.getParticipants().contains(command.getDriverId());
-                if (driverIsPassenger) {
-                    throw new ConversationException("El conductor no puede estar en la lista de pasajeros");
-                }
             }
         }
 
@@ -83,8 +81,6 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
             if (finalParticipants.isEmpty()) {
                 throw new ConversationException("Un chat TRIP debe tener al menos 1 pasajero");
             }
-            
-            finalParticipants.add(command.getDriverId());
         } else if (command.getChatType() == TravelType.GROUP) {
             if (finalParticipants.size() < 2) {
                 throw new ConversationException("Un chat GROUP debe tener al menos 2 participantes");
