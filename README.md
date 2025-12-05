@@ -451,13 +451,29 @@ These functionalities allow users to report risk situations during a trip, admin
 
 The creation of the alert allows the incident to be recorded with the location and user involved; Obtaining an alert allows you to view your information; and the status update allows you to confirm or resolve the emergency.
 
-# 🆘CreateAlert
-![Sequence Diagrams](./docs/images/CreateAlert.jpeg)
-# 🆘GetAlert
-![Sequence Diagrams](./docs/images/getAlert.jpeg)
-# 🆘UpdateAlert
-![Sequence Diagrams](./docs/images/UpdateAlert1.jpeg)
-![Sequence Diagrams](./docs/images/UpdateAlert2.jpeg)
+# 💬CreateManual
+![Imagen de WhatsApp 2025-12-05 a las 03 12 46_b259bc9d](https://github.com/user-attachments/assets/1ab3e89a-30fe-457b-ba42-206020850121)
+
+
+# 🗨️CreateAutomatic
+![Imagen de WhatsApp 2025-12-05 a las 03 12 46_21517d70](https://github.com/user-attachments/assets/cf1b913d-7220-44fd-9b8a-fbe30435b136)
+
+
+
+# 🗨️Activate emergency button
+![Imagen de WhatsApp 2025-12-05 a las 03 12 46_eae8029e](https://github.com/user-attachments/assets/f98f348a-c3da-4680-adc2-d41d38cf72ed)
+
+# 🗨️Get report by User
+![Imagen de WhatsApp 2025-12-05 a las 03 12 46_46c60caf](https://github.com/user-attachments/assets/561d808b-9882-447a-b743-2feff0f2b73d)
+
+# 🗨️Get report by Trip
+![Imagen de WhatsApp 2025-12-05 a las 03 12 46_465bb855](https://github.com/user-attachments/assets/b26789c5-73ba-4e7e-b85d-d4a6a182b201)
+
+# 🗨️Get reports by Type
+![Imagen de WhatsApp 2025-12-05 a las 03 12 46_cf7c148b](https://github.com/user-attachments/assets/f889ea1f-da20-449b-a272-6271a7e1b52d)
+
+
+
 
 
 
