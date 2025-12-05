@@ -57,16 +57,37 @@ public class ConversationService implements CreateConversationUseCase, SendMessa
         boolean isActive = command.getTravelStatus() == Status.IN_COURSE || command.getTravelStatus() == Status.ACTIVE;
         conv.setActive(isActive);
 
-        List<Long> finalParticipants = new java.util.ArrayList<>(command.getParticipants());
-
-        if (command.getChatType() == TravelType.GROUP) {
-            if (command.getOrganizerId() != null && !finalParticipants.contains(command.getOrganizerId())) {
-                finalParticipants.add(command.getOrganizerId());
+        List<Long> finalParticipants = new java.util.ArrayList<>();
+        
+        if (command.getParticipants() != null) {
+            for (Long participant : command.getParticipants()) {
+                if (!finalParticipants.contains(participant)) {
+                    finalParticipants.add(participant);
+                }
             }
-        } else { 
-            if (command.getDriverId() != null && !finalParticipants.contains(command.getDriverId())) {
+        }
+
+        if (command.getChatType() == TravelType.TRIP && command.getDriverId() != null) {
+            if (command.getParticipants() != null && command.getParticipants().contains(command.getDriverId())) {
+                throw new ConversationException("El conductor no puede ser también un pasajero en el viaje");
+            }
+            
+            if (!finalParticipants.contains(command.getDriverId())) {
                 finalParticipants.add(command.getDriverId());
             }
+        }
+        else if (command.getChatType() == TravelType.GROUP && command.getOrganizerId() != null) {
+            if (command.getParticipants() != null && command.getParticipants().contains(command.getOrganizerId())) {
+                throw new ConversationException("El organizador no puede ser también un participante en el grupo");
+            }
+        
+            if (!finalParticipants.contains(command.getOrganizerId())) {
+                finalParticipants.add(command.getOrganizerId());
+            }
+        }
+
+        if (finalParticipants.size() < 2) {
+            throw new ConversationException("Una conversación debe tener al menos 2 participantes");
         }
 
         conv.setParticipants(finalParticipants);
