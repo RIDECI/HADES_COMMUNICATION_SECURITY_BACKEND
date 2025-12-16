@@ -40,7 +40,8 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of(
             "http://localhost:5173",
             "http://localhost:5174", 
-            "https://hadescommunicationsecuritybackend-development.up.railway.app"
+            "https://rideci.vercel.app/",
+            "https://web-production-d849d5.up.railway.app/"
         ));
         
         config.setAllowedMethods(List.of(
